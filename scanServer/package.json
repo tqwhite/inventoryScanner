@@ -1,0 +1,19 @@
+{
+  "name": "scanServer",
+  "version": "1.0.0",
+  "description": "operates an AML Triton handheld bar code scanner",
+  "main": "scanServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tqwhite/inventoryScanner"
+  },
+  "author": "TQ White II",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tqwhite/inventoryScanner/issues"
+  },
+  "homepage": "https://github.com/tqwhite/inventoryScanner"
+}

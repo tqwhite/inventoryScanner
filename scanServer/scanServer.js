@@ -1,174 +1,206 @@
-/*
-In the node.js intro tutorial (http://nodejs.org/), they show a basic tcp 
-server, but for some reason omit a client connecting to it.  I added an 
-example at the bottom.
 
-Save the following server in example.js:
-*/
-
-
-var net = require('net');
-var terminal = require('terminal.js');
 var qtools = require('qtools');
-qtools = new qtools();
+qtools = new qtools(),
+machina = require('machina');;
+
+//INITIALIZATION ====================================
+
+var self = this;
+
 var projectBasePath = process.env.SCANNER_BASE_PATH;
+if (!projectBasePath) {
+	qtools.die("there must be an environment variable named SCANNER_BASE_PATH pointing to a folder named 'config' containing lightningPipe.js and localEnvironment.js");
+}
 
-var escChar = String.fromCharCode(27),
-	escPrefix = escChar + '[',
-	enterChar=String.fromCharCode(13);
+//LOCAL FUNCTIONS ====================================
 
-var startScreen = qtools.fs.readFileSync(projectBasePath+'/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
+var resetModel = function() {
+	self.dataModel = {};
+}
+
+var scanRequest = {
+	type: 'wantScan',
+	dataModelPropertyName: 'scanCode',
+	replyToInput: 'inputA',
+	prompt: 'Trigger Scan'
+};
+
+var quantityRequest = {
+	type: 'wantNumber',
+	dataModelPropertyName: 'quantity',
+	replyToInput: 'inputA',
+	prompt: 'Quantity'
+};
+
+var typeRequest = {
+	type: 'wantCode',
+	dataModelPropertyName: 'type',
+	replyToInput: 'inputA',
+	prompt: 'Type (a,b,c)'
+};
+
+var waitForSaveRequest={
+	type: 'saveDisplay',
+	requestInput:'wait',
+	prompt:'SAVING...'
+}
+
+var successSaveRequest={
+	type: 'saveDisplay',
+	requestInput:'success',
+	prompt:'SAVE SUCCESS'
+}
+var errorSaveRequest={
+	type: 'saveDisplay',
+	requestInput:'error',
+	prompt:'ERROR REPEAT SCAN'
+}
+
+var terminalInterface = require('./terminalInterface');
+
+var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
 var startList = startScreen.split("\n");
-;
 
-
-var displayTop = 5,
-	displayLeft = 3,
-	displayHeight = startList.length,
-	displayWidth = 16;
-;
-
-var currLine = displayTop,
-	currCol = displayLeft;
-
-var transactionCount=0;
-
-
-
-var newLine = function() {
-	currLine=currLine+1;
-	return setCursorPosition(displayLeft, currLine);
-}
-
-
-var setCursorPosition = function(col, row) {
-	currLine = row;
-	return escPrefix + row + ';' + col + 'H';
-}
-
-var initCursorPosition = function() {
-	currLine = displayTop;
-	currCol = displayLeft;
-	return setCursorPosition(currCol, currLine);
-}
-
-var clearDisplayArea = function() {
-
-	var outString = '';
-	for (var row = displayTop, len = displayHeight; row < len; row++) {
-		var blanksString = '';
-		for (var col = displayLeft, len2 = displayWidth; col < len2; col++) {
-			blanksString += ' ';
-		}
-
-		outString += setCursorPosition(displayLeft, row) + blanksString+'      ';
-	}
-	return outString +initCursorPosition();
-}
-
-var initScreen=function(){
-		clearDisplayArea();
-		scannerSocket.write(setCursorPosition(0,0)+startScreen);
-		scannerSocket.write(initCursorPosition());
-}
-
-var returnToCursorPosition=function(){
-	return setCursorPosition(currCol, currLine);
-}
-
-
-
-
-var scannerSocket;
-
-
-var server = net.createServer(function(socket) {
-var stringAccumulator='', barCode, quantity,
-waitingForSecondEnter=false;
-scannerSocket=socket;
-	var replyToScanner = function(inData) {
-
-		var scanCode, reply;
-
-		if (inData==enterChar && waitingForSecondEnter){
-			quantity=stringAccumulator;
-			stringAccumulator=''
-			
-			initScreen();
-			reply="Helix Save:"+newLine()+newLine()+'Item: '+newLine()+barCode+newLine()+newLine()+'Qty: '+quantity;
-			reply+=newLine()+newLine()+"ERROR:"+newLine()+"No Helix Server"+newLine()
-		}
-		else{
-		if (inData.length > 1) {
-			barCode=inData;
-			initScreen();
-			reply = 'Code (#'+(transactionCount++)+'):'+newLine()+inData+newLine()+newLine();
-			reply += 'Quantity:'+newLine();
-			stringAccumulator='';
-		} else {
-		
-			if (inData==enterChar){
-				waitingForSecondEnter=true;
-				reply = returnToCursorPosition() +  stringAccumulator+returnToCursorPosition();
-			}
-			else{
-				waitingForSecondEnter=false;
-			}
-			stringAccumulator+=inData;
-			reply = returnToCursorPosition() +  stringAccumulator+returnToCursorPosition();
-		}
-		}
-
-		socket.write(reply);
+var updateModel = function(propertyName, inData, replyToInput) {
+	if (propertyName=='reset'){
+		restartMachine();
+		return;
 	}
 
+	self.dataModel[propertyName] = inData;
+	console.dir({
+		"SELF.DATAMODEL": self.dataModel
+	});
+	finiteMachine.handle(replyToInput);
+};
+
+
+var startMachine = function() {
+	finiteMachine.transition('getScan');
+}
+
+var restartMachine = function() {
+	resetModel();
+	finiteMachine.transition('getScan');
+}
+
+var terminalInit = {
+	port: 1337,
+	ipAddress: '0.0.0.0',
+	appName: 'inventoryScanner',
+	initialText: startScreen,
+	screenStructure: {
+		errorRow: 3,
+		promptRow: 4,
+		echoRow: 6,
+		summary: 9,
+		leftCol: 3
+	},
+	updateDataModelFunction: updateModel,
+	initiateProcessing: startMachine
+};
+
+//MACHINA ====================================
+
+var finiteMachine = new machina.Fsm({
+
+	initialize: function(options) {
+		self.terminalInterface = new terminalInterface(terminalInit);
+	},
+
+	initialState: 'uninitialized',
+
+	states: {
+		uninitialized: {
+			"*": function() {
+				this.deferUntilTransition();
+			}
+		},
+		getScan: {
+
+			_onEnter: function() {
+				console.log('starting getScan');
+				self.terminalInterface.newRequest(scanRequest);
+			},
+
+			'inputA': function() {
+				console.log('got inputA for getScan');
+				this.transition('getQuantity');
+			},
+
+			'reset': function() {
+				restartMachine();
+			}
+		},
+		getQuantity: {
+
+			_onEnter: function() {
+				console.log('starting getQuantity');
+				self.terminalInterface.newRequest(quantityRequest);
+			},
+
+			'inputA': function() {
+				console.log('got inputA for getQuantity');
+				this.transition('getType');
+			},
+
+			'reset': function() {
+				restartMachine();
+			}
+		},
+		getType: {
+
+			_onEnter: function() {
+				console.log('starting getType');
+				self.terminalInterface.newRequest(typeRequest);
+			},
+
+			'inputA': function() {
+				console.log('got inputA for getType');
+				this.transition('save');
+			},
+
+			'reset': function() {
+				restartMachine();
+			}
+		},
+		save: {
+
+			_onEnter: function() {
+				console.log('starting save');
+				console.dir({"self.dataModel":self.dataModel});
+				self.terminalInterface.newRequest(waitForSaveRequest);
+				setTimeout(function(){this.handle('success');}.bind(this), 3000);
+			},
+
+			'success': function() {
+				self.terminalInterface.newRequest(successSaveRequest);
+				console.log('got success for save');
+				setTimeout(function(){this.transition('getScan');}.bind(this), 3000);
+			},
+
+			'error': function() {
+				self.terminalInterface.newRequest(errorSaveRequest);
+				this.transition('getScan');
+			}
+		},
+
+		reset: function() {
+				restartMachine();
+		}
+	}
+}
+
+);
+
+//METHODS AND PROPERTIES ====================================
+
+this.dataModel = {};
+
+
+//END  ============================================================
 
 
 
-		socket.write(startScreen);
-		socket.write(initCursorPosition());
 
-	socket.pipe(socket);
-	socket.on('data', replyToScanner);
-
-
-});
-
-var port = 1337;
-server.listen(port, '0.0.0.0');
-
-console.log('listening on port ' + port);
-
-/*
-And connect with a tcp client from the command line using netcat, the *nix 
-utility for reading and writing across tcp/udp network connections.  I've only 
-used it for debugging myself.
-
-$ netcat 127.0.0.1 1337
-
-You should see:
-> Echo server
-
-*/
-
-/* Or use this example tcp client written in node.js.  (Originated with 
-example code from 
-http://www.hacksparrow.com/tcp-socket-programming-in-node-js.html.) */
-
-// var net = require('net');
-//  
-// var client = new net.Socket();
-// client.connect(1337, '127.0.0.1', function(inData) {
-// 	console.log('Connected');
-// 	client.write('Hello, server! Love, Client.');
-// });
-//  
-// client.on('data', function(data) {
-// 	console.log('Received: ' + data);
-// 	client.destroy(); // kill client after server's response
-// });
-//  
-// client.on('close', function() {
-// 	console.log('Connection closed');
-// });
 
