@@ -57,6 +57,7 @@ var errorSaveRequest = {
 }
 
 var terminalInterface = require('./terminalInterface');
+var dataInterface = require('./dataInterface');
 
 var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
 var startList = startScreen.split("\n");
@@ -102,6 +103,7 @@ var finiteMachine = new machina.Fsm({
 
 	initialize: function(options) {
 		self.terminalInterface = new terminalInterface(terminalInit);
+		self.dataInterface = new dataInterface();
 	},
 
 	initialState: 'uninitialized',
