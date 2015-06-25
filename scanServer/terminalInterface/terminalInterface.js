@@ -60,39 +60,32 @@ var moduleFunction = function(args) {
 				data: outData
 			});
 		};
-// 		errorRow: 3,
-// 		promptRow: 4,
-// 		echoRow: 6,
-// 		summary: 9
-//		leftCol: 3
+	// 		errorRow: 3,
+	// 		promptRow: 4,
+	// 		echoRow: 6,
+	// 		summary: 9
+	//		leftCol: 3
 
-	//LOCAL FUNCTIONS ====================================
+	//DEVICE SCREEN MANAGEMENT ====================================
+
 	var escChar = String.fromCharCode(27),
-		enterChar=String.fromCharCode(13), //note: 'x'.charCodeAt(0); gives code for character
+		enterChar = String.fromCharCode(13), //note: 'x'.charCodeAt(0); gives code for character
 		escPrefix = escChar + '[',
 		enterChar = String.fromCharCode(13);
 
-		var echoStartPosition={
-			row:self.screenStructure.echoRow,
-			col:self.screenStructure.leftCol
-		}
-	
-	var writePrompt=function(writeString){
-		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H'+writeString+currentPositionString());
-	}
-	
-	var initDisplay=function(){
-		writeToDevice(newPositionString({row:0, col:0})+self.initialText+newPositionString(echoStartPosition));
+	var echoStartPosition = {
+		row: self.screenStructure.echoRow,
+		col: self.screenStructure.leftCol
 	}
 
-	var startupFunction = function() {
-		initDisplay();
-		self.socket.pipe(self.socket);
-		self.socket.on('data', scannerDataReceivingCallback);
+	var initDisplay = function() {
+		writeToDevice(setNewPositionGetString({
+					row: 0,
+					col: 0
+				}) + self.initialText + setNewPositionGetString(echoStartPosition));
 	}
-
 	var writeToDevice = function(writeString) {
-		//	console.log("writeString='"+writeString.replace(escChar,  '').replace(' ', '.')+"'");
+	//		console.log("writeString='"+writeString.replace(escChar,  'XXXXX').replace(' ', '.').replace(/\[/, '')+"'");
 		self.socket.write(writeString);
 	}
 
@@ -100,16 +93,16 @@ var moduleFunction = function(args) {
 
 		var writeString = '';
 		for (var i = 0, len = self.currentInString.length; i < len; i++) {
-			writeString += '0';
+			writeString += ' ';
 		}
 		writeToDevice(currentPositionString() + writeString + currentPositionString());
 	}
-	
-	var incrementCurrentRow=function(){
-		self.currentCursorPosition.row+1;
+
+	var incrementCurrentRow = function() {
+		self.currentCursorPosition.row + 1;
 	}
 
-	var newPositionString = function(cursorPosition) {
+	var setNewPositionGetString = function(cursorPosition) {
 		self.currentCursorPosition = cursorPosition;
 		return currentPositionString(self.currentCursorPosition);
 	}
@@ -118,28 +111,87 @@ var moduleFunction = function(args) {
 		return escPrefix + self.currentCursorPosition.row + ';' + self.currentCursorPosition.col + 'H';
 	}
 
-	var scannerDataReceivingCallback = function(inData) {
-		self.currentInString = inData.toString();
-		suppressEcho();
-		var charType = detectSpecialCharStrings();
-		stateMachine.handle(charType);
+	var echoPositionString = function(inx) {
+		inx=(typeof(inx)!='undefined')?inx:0;
+		return escPrefix + (+echoStartPosition.row+inx) + ';' + echoStartPosition.col + 'H';
 	}
+	
+	var formatPositionString=function(position){
+		if (typeof(position)=='string'){
+			var row=position;
+		}
+		else{
+			var row=position.row;
+		}
+		
+		if (typeof(position.col)!='undefined'){
+			var col=position.col;
+		}
+		else{
+			var col=self.screenStructure.leftCol;
+		}
+		
+console.log("row="+row);
+console.dir({"col":col});
+
+		return escPrefix + row + ';' + col + 'H';
+	
+	}
+
+	var writePrompt = function(writeString) {
+		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H' + writeString + currentPositionString());
+	}
+	
+	
+	
+	
+
+	var echoBuffer = '',
+		echoIndex = 1,
+		prevPosition = echoStartPosition;
+		
+	var writeEcho = function(writeString, newLine) {
+		var nextPosition = qtools.clone(echoStartPosition);
+		nextPosition.row = nextPosition.row + (echoIndex * 2);
+		
+		if (newLine) {
+console.log("\n=-=============   newLine  =========================\n");
+
+
+			writeString += formatPositionString(prevPosition);
+			echoIndex++;
+		}
+		echoBuffer += writeString;
+		writeToDevice(formatPositionString(echoStartPosition) + writeString + formatPositionString(nextPosition));
+		prevPosition = qtools.clone(nextPosition);
+	}
+
+
+
+
+
 
 	var writeLine = function(writeString) {
 		writeToDevice(writeString);
-		self.currentCursorPosition.col = self.screenStructure.leftCol;
-		self.currentCursorPosition.row = self.currentCursorPosition.row + 1;
-		writeToDevice(newPositionString(self.currentCursorPosition));
-	}
-
-	var writeEcho = function(writeString) {
-		writeToDevice(newPositionString(self.currentCursorPosition));
-		writeToDevice(writeString);
+		incrementCurrentRow();
+		writeToDevice(currentPositionString());
 	}
 
 	//MACHINA ====================================
 
-	var stateMachineDefinition={
+	var onEnterGeneral = function(stateMachine) {
+		console.dir({
+			"self.currentCursorPosition": self.currentCursorPosition
+		});
+	}
+
+	var onExitGeneral = function(stateMachine) {
+		console.dir({
+			"self.currentCursorPosition": self.currentCursorPosition
+		});
+	}
+
+	var stateMachineDefinition = {
 
 		initialize: function(options) {
 			// your setup code goes here... 
@@ -155,64 +207,83 @@ var moduleFunction = function(args) {
 			},
 			wantScan: {
 				_onEnter: function() {
+					onEnterGeneral(this);
+
 					initDisplay();
 					writePrompt(self.request.prompt);
 				},
 				'*': function() {
 					writeLine(self.currentInString);
 					self.workingResultString = '';
-					},
-				enter:function(){
-					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
-					writeLine(self.workingResultString);
-					self.workingResultString = '';
 				},
-				escape:function(){
+				enter: function() {
+console.log("\n=-=============   enter  =========================\n");
+
+
+					writeEcho(self.workingResultString, 'newLine') 
+					self.workingResultString = '';
+					
+					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
+				},
+				escape: function() {
 					self.updateDataModelFunction('reset');
 				},
 				scan: function() {
 					var returnData = self.currentInString.match(/^code(.*?)edoc\r$/, self.currentInString);
-					self.workingResultString += returnData[1];
-					writeEcho(self.workingResultString);
+					self.workingResultString += returnData[1];;
 					this.handle('enter');
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
 				}
 			},
 			wantNumber: {
 				_onEnter: function() {
+					onEnterGeneral(this);
+
 					self.currentInString = '';
 					self.workingResultString = '';
 					writePrompt(self.request.prompt);
 				},
 				'*': function() {
-					suppressEcho();
+				//	suppressEcho();
+					
 				},
-				enter:function(){
-					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
+				enter: function() {
+					writeEcho('', 'newLine');
 					writeLine(self.workingResultString);
 					self.workingResultString = '';
+					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
-				escape:function(){
+				escape: function() {
 					self.updateDataModelFunction('reset');
 				},
 				number: function() {
 					self.workingResultString += self.currentInString;
 					writeEcho(self.workingResultString);
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
 				}
 			},
 			wantCode: {
 				_onEnter: function() {
+					onEnterGeneral(this);
+
 					self.currentInString = '';
 					self.workingResultString = '';
 					writePrompt(self.request.prompt);
 				},
 				'*': function() {},
-				enter:function(){
+				enter: function() {
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
-					writeLine('x'+self.workingResultString);
-				},	
-				escape:function(){
+					writeLine(self.workingResultString);
+				},
+				escape: function() {
 					self.updateDataModelFunction('reset');
-				},			
+				},
 				char: function() {
 					if (!self.currentInString.match(/a|b|c/)) {
 						suppressEcho();
@@ -220,24 +291,34 @@ var moduleFunction = function(args) {
 					}
 					self.workingResultString += self.currentInString;
 					writeEcho(self.workingResultString);
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
 				}
 			},
-			
+
 			wantWord: {
 				_onEnter: function() {
+					onEnterGeneral(this);
+
 					self.currentInString = '';
 					self.workingResultString = '';
 					writePrompt(self.request.prompt);
 				},
 				'*': function() {},
-				escape:function(){
+				escape: function() {
 					self.escapeCount++;
-					if (self.escapeCount>1){
-					self.updateDataModelFunction(self.request.dataModelPropertyName, self.currentInString, self.request.replyToInput);
+					if (self.escapeCount > 1) {
+						self.updateDataModelFunction(self.request.dataModelPropertyName, self.currentInString, self.request.replyToInput);
 					}
-				},	
+				},
 				char: function() {
 					self.workingResultString += self.currentInString;
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
 				}
 			},
 			reset: function() {
@@ -245,60 +326,75 @@ var moduleFunction = function(args) {
 			},
 			saveDisplay: {
 				_onEnter: function() {
+					onEnterGeneral(this);
+
 				},
-				wait:function(){
+				wait: function() {
 					writePrompt(self.request.prompt);
 				},
-				success:function(){
+				success: function() {
 					writePrompt(self.request.prompt);
 				},
-				error:function(){
+				error: function() {
 					writePrompt(self.request.prompt);
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
 				}
-				}
+			}
 		}
 	};
 
 
 	var detectSpecialCharStrings = function() {
 		var inData = self.currentInString,
-		outString;
+			outString;
 		if (inData.match(/^code.*?edoc\r$/)) {
-			outString='scan';
+			outString = 'scan';
 		} else if (inData.match(/\d/)) {
-			outString='number';
+			outString = 'number';
 		} else if (inData.match(/\w/)) {
-			outString='char';
+			outString = 'char';
 		} else if (inData.match(new RegExp(enterChar))) {
-			outString='enter';
+			outString = 'enter';
 		} else if (inData.match(new RegExp(escChar))) {
-			outString='escape';
+			outString = 'escape';
 		} else {
-			outString='xx';
+			outString = 'xx';
 		}
-console.log("outString="+outString);
-console.log("inData="+inData.charCodeAt(0));
 		return outString;
 	}
 
 	//METHODS AND PROPERTIES ====================================
 
 	this.newRequest = function(request) {
-console.dir({"request":request});
-
-
 		self.request = request
 		stateMachine.transition(self.request.type);
-		if (self.request.requestInput){
-		stateMachine.handle(self.request.requestInput);
+		if (self.request.requestInput) {
+			stateMachine.handle(self.request.requestInput);
 		}
 	}
-	
-	this.request={};
-	
-	this.workingResultString='';
 
-	//INITIALIZATION ====================================
+	this.request = {};
+
+	this.workingResultString = '';
+
+	//SCANNER OPERATION ====================================
+
+
+	var startupFunction = function() {
+		initDisplay();
+		self.socket.pipe(self.socket);
+		self.socket.on('data', scannerDataReceivingCallback);
+	}
+
+	var scannerDataReceivingCallback = function(inData) {
+		self.currentInString = inData.toString();
+		suppressEcho();
+		var charType = detectSpecialCharStrings();
+		stateMachine.handle(charType);
+	}
 
 	var server = net.createServer(function(socket) {
 		self.socket = socket;
@@ -319,6 +415,7 @@ console.dir({"request":request});
 
 util.inherits(moduleFunction, events.EventEmitter);
 module.exports = moduleFunction;
+
 
 
 

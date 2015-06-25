@@ -39,21 +39,21 @@ var typeRequest = {
 	prompt: 'Type (a,b,c)'
 };
 
-var waitForSaveRequest={
+var waitForSaveRequest = {
 	type: 'saveDisplay',
-	requestInput:'wait',
-	prompt:'SAVING...'
+	requestInput: 'wait',
+	prompt: 'SAVING...'
 }
 
-var successSaveRequest={
+var successSaveRequest = {
 	type: 'saveDisplay',
-	requestInput:'success',
-	prompt:'SAVE SUCCESS'
+	requestInput: 'success',
+	prompt: 'SAVE SUCCESS'
 }
-var errorSaveRequest={
+var errorSaveRequest = {
 	type: 'saveDisplay',
-	requestInput:'error',
-	prompt:'ERROR REPEAT SCAN'
+	requestInput: 'error',
+	prompt: 'ERROR REPEAT SCAN'
 }
 
 var terminalInterface = require('./terminalInterface');
@@ -62,15 +62,12 @@ var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/s
 var startList = startScreen.split("\n");
 
 var updateModel = function(propertyName, inData, replyToInput) {
-	if (propertyName=='reset'){
+	if (propertyName == 'reset') {
 		restartMachine();
 		return;
 	}
 
 	self.dataModel[propertyName] = inData;
-	console.dir({
-		"SELF.DATAMODEL": self.dataModel
-	});
 	finiteMachine.handle(replyToInput);
 };
 
@@ -119,12 +116,10 @@ var finiteMachine = new machina.Fsm({
 		getScan: {
 
 			_onEnter: function() {
-				console.log('starting getScan');
 				self.terminalInterface.newRequest(scanRequest);
 			},
 
 			'inputA': function() {
-				console.log('got inputA for getScan');
 				this.transition('getQuantity');
 			},
 
@@ -135,12 +130,10 @@ var finiteMachine = new machina.Fsm({
 		getQuantity: {
 
 			_onEnter: function() {
-				console.log('starting getQuantity');
 				self.terminalInterface.newRequest(quantityRequest);
 			},
 
 			'inputA': function() {
-				console.log('got inputA for getQuantity');
 				this.transition('getType');
 			},
 
@@ -151,12 +144,10 @@ var finiteMachine = new machina.Fsm({
 		getType: {
 
 			_onEnter: function() {
-				console.log('starting getType');
 				self.terminalInterface.newRequest(typeRequest);
 			},
 
 			'inputA': function() {
-				console.log('got inputA for getType');
 				this.transition('save');
 			},
 
@@ -167,26 +158,29 @@ var finiteMachine = new machina.Fsm({
 		save: {
 
 			_onEnter: function() {
-				console.log('starting save');
-				console.dir({"self.dataModel":self.dataModel});
+				console.dir({
+					"SELF.DATAMODEL": self.dataModel
+				});
 				self.terminalInterface.newRequest(waitForSaveRequest);
-				setTimeout(function(){this.handle('success');}.bind(this), 3000);
+				setTimeout(function() {
+					this.handle('success');
+				}.bind(this), 3000);
 			},
 
 			'success': function() {
 				self.terminalInterface.newRequest(successSaveRequest);
-				console.log('got success for save');
-				setTimeout(function(){this.transition('getScan');}.bind(this), 3000);
+				setTimeout(function() {
+					this.transition('getScan');
+				}.bind(this), 3000);
 			},
 
 			'error': function() {
 				self.terminalInterface.newRequest(errorSaveRequest);
-				this.transition('getScan');
 			}
 		},
 
 		reset: function() {
-				restartMachine();
+			restartMachine();
 		}
 	}
 }
@@ -199,6 +193,7 @@ this.dataModel = {};
 
 
 //END  ============================================================
+
 
 
 
