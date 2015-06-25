@@ -87,10 +87,9 @@ var terminalInit = {
 	appName: 'inventoryScanner',
 	initialText: startScreen,
 	screenStructure: {
-		errorRow: 3,
-		promptRow: 4,
-		echoRow: 6,
-		summary: 9,
+		promptRow: 5,
+		echoRow: 8,
+		echoLastRow:16,
 		leftCol: 3
 	},
 	updateDataModelFunction: updateModel,

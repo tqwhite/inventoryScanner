@@ -60,11 +60,7 @@ var moduleFunction = function(args) {
 				data: outData
 			});
 		};
-	// 		errorRow: 3,
-	// 		promptRow: 4,
-	// 		echoRow: 6,
-	// 		summary: 9
-	//		leftCol: 3
+
 
 	//DEVICE SCREEN MANAGEMENT ====================================
 
@@ -76,26 +72,6 @@ var moduleFunction = function(args) {
 	var echoStartPosition = {
 		row: self.screenStructure.echoRow,
 		col: self.screenStructure.leftCol
-	}
-
-	var initDisplay = function() {
-		writeToDevice(setNewPositionGetString({
-					row: 0,
-					col: 0
-				}) + self.initialText + setNewPositionGetString(echoStartPosition));
-	}
-	var writeToDevice = function(writeString) {
-	//		console.log("writeString='"+writeString.replace(escChar,  'XXXXX').replace(' ', '.').replace(/\[/, '')+"'");
-		self.socket.write(writeString);
-	}
-
-	var suppressEcho = function() {
-
-		var writeString = '';
-		for (var i = 0, len = self.currentInString.length; i < len; i++) {
-			writeString += ' ';
-		}
-		writeToDevice(currentPositionString() + writeString + currentPositionString());
 	}
 
 	var incrementCurrentRow = function() {
@@ -131,44 +107,74 @@ var moduleFunction = function(args) {
 			var col=self.screenStructure.leftCol;
 		}
 		
-console.log("row="+row);
-console.dir({"col":col});
-
 		return escPrefix + row + ';' + col + 'H';
 	
 	}
 
 	var writePrompt = function(writeString) {
-		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H' + writeString + currentPositionString());
+		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H'+clearToRight + writeString + currentPositionString());
 	}
 	
 	
+
+	var initDisplay = function() {
+		writeToDevice(setNewPositionGetString({
+					row: 0,
+					col: 0
+				}) + self.initialText + setNewPositionGetString(echoStartPosition));
+				
+		self.workingResultString='';
+		echoBuffer='';
+		echoLineCount = 1
+	}
+	
+	var writeToDevice = function(writeString) {
+		self.socket.write(writeString);
+	}
+	
+// ECHO ZONE =================================	
 	
 	
 
 	var echoBuffer = '',
-		echoIndex = 1,
-		prevPosition = echoStartPosition;
-		
-	var writeEcho = function(writeString, newLine) {
-		var nextPosition = qtools.clone(echoStartPosition);
-		nextPosition.row = nextPosition.row + (echoIndex * 2);
-		
-		if (newLine) {
-console.log("\n=-=============   newLine  =========================\n");
+		echoLineCount = 1,
+		prevPosition = echoStartPosition,
+		clearToRight=escPrefix+'0K';
 
-
-			writeString += formatPositionString(prevPosition);
-			echoIndex++;
-		}
-		echoBuffer += writeString;
-		writeToDevice(formatPositionString(echoStartPosition) + writeString + formatPositionString(nextPosition));
-		prevPosition = qtools.clone(nextPosition);
+var updateEcho=function(inString){
+	if (inString=='newLine'){
+		echoBuffer=echoBuffer+clearToRight+newLinePositionString();
+		echoLineCount++;
 	}
+	else{
+	echoBuffer=echoBuffer+inString;
+	}
+	
+	writeEcho();
+}
+		
+	var writeEcho = function() {
+		var echoOutput=echoBuffer;
+		writeToDevice(formatPositionString(echoStartPosition)+ echoBuffer+echoPaddingString());
+	}
+	
+	var echoPaddingString=function(inString){
+		var echoRow=self.screenStructure.echoLastRow-self.screenStructure.echoRow-3,
+		needed=echoRow-echoLineCount,
+		outString='';
 
-
-
-
+		for (var i=0, len=needed; i<len; i++){
+			outString+=clearToRight+newLinePositionString()+clearToRight;
+		}
+		return outString;
+	
+	}
+	
+	var newLinePositionString=function(){
+		return escChar+'E'+ escChar+'E'+ escPrefix+(self.screenStructure.leftCol-1)+'C';
+	}
+	
+// ECHO ZONE =================================
 
 
 	var writeLine = function(writeString) {
@@ -180,15 +186,12 @@ console.log("\n=-=============   newLine  =========================\n");
 	//MACHINA ====================================
 
 	var onEnterGeneral = function(stateMachine) {
-		console.dir({
-			"self.currentCursorPosition": self.currentCursorPosition
-		});
+					self.currentInString = '';
+					self.workingResultString = '';
+					writePrompt(self.request.prompt);
 	}
 
 	var onExitGeneral = function(stateMachine) {
-		console.dir({
-			"self.currentCursorPosition": self.currentCursorPosition
-		});
 	}
 
 	var stateMachineDefinition = {
@@ -207,22 +210,15 @@ console.log("\n=-=============   newLine  =========================\n");
 			},
 			wantScan: {
 				_onEnter: function() {
-					onEnterGeneral(this);
-
 					initDisplay();
-					writePrompt(self.request.prompt);
+					onEnterGeneral(this);
 				},
 				'*': function() {
-					writeLine(self.currentInString);
-					self.workingResultString = '';
+					writeEcho();
 				},
 				enter: function() {
-console.log("\n=-=============   enter  =========================\n");
-
-
-					writeEcho(self.workingResultString, 'newLine') 
-					self.workingResultString = '';
-					
+					if (!self.workingResultString){return;}
+					updateEcho('newLine') 
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
 				escape: function() {
@@ -230,7 +226,8 @@ console.log("\n=-=============   enter  =========================\n");
 				},
 				scan: function() {
 					var returnData = self.currentInString.match(/^code(.*?)edoc\r$/, self.currentInString);
-					self.workingResultString += returnData[1];;
+					self.workingResultString=returnData[1];
+					updateEcho(self.workingResultString);
 					this.handle('enter');
 				},
 
@@ -241,19 +238,13 @@ console.log("\n=-=============   enter  =========================\n");
 			wantNumber: {
 				_onEnter: function() {
 					onEnterGeneral(this);
-
-					self.currentInString = '';
-					self.workingResultString = '';
-					writePrompt(self.request.prompt);
 				},
 				'*': function() {
-				//	suppressEcho();
-					
+					writeEcho();
 				},
 				enter: function() {
-					writeEcho('', 'newLine');
-					writeLine(self.workingResultString);
-					self.workingResultString = '';
+					if (!self.workingResultString){return;}
+					updateEcho('newLine');
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
 				escape: function() {
@@ -261,7 +252,8 @@ console.log("\n=-=============   enter  =========================\n");
 				},
 				number: function() {
 					self.workingResultString += self.currentInString;
-					writeEcho(self.workingResultString);
+					updateEcho(self.currentInString);
+					writePrompt('Enter to Keep');
 				},
 
 				_onExit: function() {
@@ -271,26 +263,26 @@ console.log("\n=-=============   enter  =========================\n");
 			wantCode: {
 				_onEnter: function() {
 					onEnterGeneral(this);
-
-					self.currentInString = '';
-					self.workingResultString = '';
-					writePrompt(self.request.prompt);
 				},
-				'*': function() {},
+				'*': function() {
+					writeEcho();
+				},
 				enter: function() {
+					if (!self.workingResultString){return;}
+					updateEcho('newLine');
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
-					writeLine(self.workingResultString);
 				},
 				escape: function() {
 					self.updateDataModelFunction('reset');
 				},
 				char: function() {
 					if (!self.currentInString.match(/a|b|c/)) {
-						suppressEcho();
+						writeEcho();
 						return;
 					}
 					self.workingResultString += self.currentInString;
-					writeEcho(self.workingResultString);
+					updateEcho(self.currentInString);
+					writePrompt('Enter to SAVE');
 				},
 
 				_onExit: function() {
@@ -301,10 +293,6 @@ console.log("\n=-=============   enter  =========================\n");
 			wantWord: {
 				_onEnter: function() {
 					onEnterGeneral(this);
-
-					self.currentInString = '';
-					self.workingResultString = '';
-					writePrompt(self.request.prompt);
 				},
 				'*': function() {},
 				escape: function() {
@@ -326,8 +314,6 @@ console.log("\n=-=============   enter  =========================\n");
 			},
 			saveDisplay: {
 				_onEnter: function() {
-					onEnterGeneral(this);
-
 				},
 				wait: function() {
 					writePrompt(self.request.prompt);
@@ -391,7 +377,6 @@ console.log("\n=-=============   enter  =========================\n");
 
 	var scannerDataReceivingCallback = function(inData) {
 		self.currentInString = inData.toString();
-		suppressEcho();
 		var charType = detectSpecialCharStrings();
 		stateMachine.handle(charType);
 	}
