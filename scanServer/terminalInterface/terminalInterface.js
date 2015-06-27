@@ -67,7 +67,8 @@ var moduleFunction = function(args) {
 	var escChar = String.fromCharCode(27),
 		enterChar = String.fromCharCode(13), //note: 'x'.charCodeAt(0); gives code for character
 		escPrefix = escChar + '[',
-		enterChar = String.fromCharCode(13);
+		enterChar = String.fromCharCode(13),
+		bellChar = String.fromCharCode(7);
 
 	var echoStartPosition = {
 		row: self.screenStructure.echoRow,
@@ -112,7 +113,13 @@ var moduleFunction = function(args) {
 	}
 
 	var writePrompt = function(writeString) {
-		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H'+clearToRight + writeString + currentPositionString());
+	if (writeString.match('<!newLine!>')){
+		writeString=writeString.replace('<!newLine!>', newLinePositionString());
+	}
+	else{
+		writeString+=newLinePositionString();
+	}
+		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H'+clearToRight + writeString+clearToRight + currentPositionString());
 	}
 	
 	
@@ -174,9 +181,6 @@ var updateEcho=function(inString){
 		return escChar+'E'+ escChar+'E'+ escPrefix+(self.screenStructure.leftCol-1)+'C';
 	}
 	
-// ECHO ZONE =================================
-
-
 	var writeLine = function(writeString) {
 		writeToDevice(writeString);
 		incrementCurrentRow();
@@ -296,10 +300,7 @@ var updateEcho=function(inString){
 				},
 				'*': function() {},
 				escape: function() {
-					self.escapeCount++;
-					if (self.escapeCount > 1) {
-						self.updateDataModelFunction(self.request.dataModelPropertyName, self.currentInString, self.request.replyToInput);
-					}
+					self.updateDataModelFunction('reset');
 				},
 				char: function() {
 					self.workingResultString += self.currentInString;
@@ -319,10 +320,13 @@ var updateEcho=function(inString){
 					writePrompt(self.request.prompt);
 				},
 				success: function() {
-					writePrompt(self.request.prompt);
+					writePrompt(self.request.prompt+bellChar);
 				},
 				error: function() {
-					writePrompt(self.request.prompt);
+					writePrompt(self.request.prompt+bellChar+bellChar+bellChar);
+				},
+				escape: function() {
+					writePrompt("Can't (esc) "+newLinePositionString()+"during Save");
 				},
 
 				_onExit: function() {

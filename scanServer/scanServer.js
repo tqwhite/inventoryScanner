@@ -29,14 +29,14 @@ var quantityRequest = {
 	type: 'wantNumber',
 	dataModelPropertyName: 'quantity',
 	replyToInput: 'inputA',
-	prompt: 'Quantity'
+	prompt: 'Enter Quantity'
 };
 
 var typeRequest = {
 	type: 'wantCode',
 	dataModelPropertyName: 'type',
 	replyToInput: 'inputA',
-	prompt: 'Type (a,b,c)'
+	prompt: 'Enter Type (a,b,c)<!newLine!>a:add,b:sub,c:rep'
 };
 
 var waitForSaveRequest = {
@@ -89,7 +89,7 @@ var terminalInit = {
 	initialText: startScreen,
 	screenStructure: {
 		promptRow: 5,
-		echoRow: 8,
+		echoRow: 10,
 		echoLastRow:16,
 		leftCol: 3
 	},
@@ -159,13 +159,15 @@ var finiteMachine = new machina.Fsm({
 		save: {
 
 			_onEnter: function() {
-				console.dir({
-					"SELF.DATAMODEL": self.dataModel
-				});
 				self.terminalInterface.newRequest(waitForSaveRequest);
-				setTimeout(function() {
+				self.dataInterface.save(self.dataModel, function(err, data) {
+				if (!err){
 					this.handle('success');
-				}.bind(this), 3000);
+					}
+				else{
+					this.handle('error');
+				}
+				}.bind(this));
 			},
 
 			'success': function() {
@@ -177,6 +179,9 @@ var finiteMachine = new machina.Fsm({
 
 			'error': function() {
 				self.terminalInterface.newRequest(errorSaveRequest);
+				setTimeout(function() {
+					this.transition('getScan');
+				}.bind(this), 3000);
 			}
 		},
 

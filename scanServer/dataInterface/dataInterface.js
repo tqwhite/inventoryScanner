@@ -2,7 +2,8 @@
 var qtools = require('qtools'),
 	qtools = new qtools(module),
 	events = require('events'),
-	util = require('util');
+	util = require('util'),
+	helixConnector=require('helixConnector');
 
 //START OF moduleFunction() ============================================================
 
@@ -41,13 +42,13 @@ var moduleFunction = function(args) {
 
 	//METHODS AND PROPERTIES ====================================
 
-
+	this.save=function(inData, callback){
+		helixConnector.save(inData, callback);
+	}
 
 	//INITIALIZATION ====================================
 
-
-	console.log(__dirname);
-
+	helixConnector=new helixConnector();
 
 	return this;
 };
@@ -56,9 +57,3 @@ var moduleFunction = function(args) {
 
 util.inherits(moduleFunction, events.EventEmitter);
 module.exports = moduleFunction;
-
-
-
-
-
-
