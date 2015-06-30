@@ -3,7 +3,8 @@ var qtools = require('qtools'),
 	qtools = new qtools(module),
 	events = require('events'),
 	util = require('util'),
-	helixConnector=require('helixConnector');
+	helixConnector = require('helixConnector'),
+	journal = require('journal');
 
 //START OF moduleFunction() ============================================================
 
@@ -16,16 +17,16 @@ var moduleFunction = function(args) {
 		this.metaData[name] = data;
 	}
 
-	// 	qtools.validateProperties({
-	// 		subject: args || {},
-	// 		targetScope: this, //will add listed items to targetScope
-	// 		propList: [
-	// 			{
-	// 				name: 'placeholder',
-	// 				optional: true
-	// 			}
-	// 		]
-	// 	});
+		qtools.validateProperties({
+			subject: args || {},
+			targetScope: this, //will add listed items to targetScope
+			propList: [
+				{
+					name: 'helixAccessParms',
+					optional: true
+				}
+			]
+		});
 
 	var self = this,
 		forceEvent = function(eventName, outData) {
@@ -42,13 +43,27 @@ var moduleFunction = function(args) {
 
 	//METHODS AND PROPERTIES ====================================
 
-	this.save=function(inData, callback){
-		helixConnector.save(inData, callback);
+	this.save = function(queryParms, inData, callback) {
+		journal.add(inData, 'all');
+		var localCallback = function(err, data) {
+			if (err) {
+
+				journal.add(inData, 'unsaved');
+			} else {
+
+				journal.add(inData, 'saved_correctly');
+			}
+			callback(err, data);
+		}
+		helixConnector.save(queryParms, inData, localCallback);
 	}
 
 	//INITIALIZATION ====================================
 
-	helixConnector=new helixConnector();
+	journal = new journal();
+	helixConnector = new helixConnector({
+		helixAccessParms:self.helixAccessParms
+	});
 
 	return this;
 };

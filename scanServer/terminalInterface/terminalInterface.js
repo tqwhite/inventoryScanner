@@ -61,7 +61,6 @@ var moduleFunction = function(args) {
 			});
 		};
 
-
 	//DEVICE SCREEN MANAGEMENT ====================================
 
 	var escChar = String.fromCharCode(27),
@@ -70,13 +69,11 @@ var moduleFunction = function(args) {
 		enterChar = String.fromCharCode(13),
 		bellChar = String.fromCharCode(7);
 
+	// UTILITY STRING MAKERS =================================
+
 	var echoStartPosition = {
 		row: self.screenStructure.echoRow,
 		col: self.screenStructure.leftCol
-	}
-
-	var incrementCurrentRow = function() {
-		self.currentCursorPosition.row + 1;
 	}
 
 	var setNewPositionGetString = function(cursorPosition) {
@@ -88,115 +85,98 @@ var moduleFunction = function(args) {
 		return escPrefix + self.currentCursorPosition.row + ';' + self.currentCursorPosition.col + 'H';
 	}
 
-	var echoPositionString = function(inx) {
-		inx=(typeof(inx)!='undefined')?inx:0;
-		return escPrefix + (+echoStartPosition.row+inx) + ';' + echoStartPosition.col + 'H';
-	}
-	
-	var formatPositionString=function(position){
-		if (typeof(position)=='string'){
-			var row=position;
+	var formatPositionString = function(position) {
+		if (typeof (position) == 'string') {
+			var row = position;
+		} else {
+			var row = position.row;
 		}
-		else{
-			var row=position.row;
+
+		if (typeof (position.col) != 'undefined') {
+			var col = position.col;
+		} else {
+			var col = self.screenStructure.leftCol;
 		}
-		
-		if (typeof(position.col)!='undefined'){
-			var col=position.col;
-		}
-		else{
-			var col=self.screenStructure.leftCol;
-		}
-		
+
 		return escPrefix + row + ';' + col + 'H';
-	
+
 	}
 
-	var writePrompt = function(writeString) {
-	if (writeString.match('<!newLine!>')){
-		writeString=writeString.replace('<!newLine!>', newLinePositionString());
+	var newLinePositionString = function() {
+		return escChar + 'E' + escChar + 'E' + escPrefix + (self.screenStructure.leftCol - 1) + 'C';
 	}
-	else{
-		writeString+=newLinePositionString();
+
+	var writeToDevice = function(writeString) {
+		self.socket.write(writeString);
 	}
-		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H'+clearToRight + writeString+clearToRight + currentPositionString());
-	}
-	
-	
+
+	// WRITE ROUTINES =================================
 
 	var initDisplay = function() {
+
 		writeToDevice(setNewPositionGetString({
 					row: 0,
 					col: 0
 				}) + self.initialText + setNewPositionGetString(echoStartPosition));
-				
-		self.workingResultString='';
-		echoBuffer='';
+
+		self.workingResultString = '';
+		echoBuffer = '';
 		echoLineCount = 1
 	}
-	
-	var writeToDevice = function(writeString) {
-		self.socket.write(writeString);
+
+	var writePrompt = function(writeString) {
+		if (writeString.match('<!newLine!>')) {
+			writeString = writeString.replace('<!newLine!>', newLinePositionString());
+		} else {
+			writeString += newLinePositionString();
+		}
+		writeToDevice(escPrefix + self.screenStructure.promptRow + ';' + self.screenStructure.leftCol + 'H' + clearToRight + writeString + clearToRight + currentPositionString());
 	}
-	
-// ECHO ZONE =================================	
-	
-	
+
+	// ECHO ZONE =================================
 
 	var echoBuffer = '',
 		echoLineCount = 1,
 		prevPosition = echoStartPosition,
-		clearToRight=escPrefix+'0K';
+		clearToRight = escPrefix + '0K';
 
-var updateEcho=function(inString){
-	if (inString=='newLine'){
-		echoBuffer=echoBuffer+clearToRight+newLinePositionString();
-		echoLineCount++;
+	var updateEcho = function(inString) {
+		if (inString == 'newLine') {
+			echoBuffer = echoBuffer + clearToRight + newLinePositionString();
+			echoLineCount++;
+		} else {
+			echoBuffer = echoBuffer + inString;
+		}
+
+		writeEcho();
 	}
-	else{
-	echoBuffer=echoBuffer+inString;
-	}
-	
-	writeEcho();
-}
-		
+
 	var writeEcho = function() {
-		var echoOutput=echoBuffer;
-		writeToDevice(formatPositionString(echoStartPosition)+ echoBuffer+echoPaddingString());
+		var echoOutput = echoBuffer;
+		writeToDevice(formatPositionString(echoStartPosition) + echoBuffer + echoPaddingString());
 	}
-	
-	var echoPaddingString=function(inString){
-		var echoRow=self.screenStructure.echoLastRow-self.screenStructure.echoRow-3,
-		needed=echoRow-echoLineCount,
-		outString='';
 
-		for (var i=0, len=needed; i<len; i++){
-			outString+=clearToRight+newLinePositionString()+clearToRight;
+	var echoPaddingString = function(inString) {
+		var echoRow = self.screenStructure.echoLastRow - self.screenStructure.echoRow - 3,
+			needed = echoRow - echoLineCount,
+			outString = '';
+
+		for (var i = 0, len = needed; i < len; i++) {
+			outString += clearToRight + newLinePositionString() + clearToRight;
 		}
 		return outString;
-	
-	}
-	
-	var newLinePositionString=function(){
-		return escChar+'E'+ escChar+'E'+ escPrefix+(self.screenStructure.leftCol-1)+'C';
-	}
-	
-	var writeLine = function(writeString) {
-		writeToDevice(writeString);
-		incrementCurrentRow();
-		writeToDevice(currentPositionString());
+
 	}
 
 	//MACHINA ====================================
 
 	var onEnterGeneral = function(stateMachine) {
-					self.currentInString = '';
-					self.workingResultString = '';
-					writePrompt(self.request.prompt);
+		self.currentInString = '';
+		self.workingResultString = '';
+		writePrompt(self.request.prompt);
 	}
 
-	var onExitGeneral = function(stateMachine) {
-	}
+	var onExitGeneral = function(stateMachine) {}
 
 	var stateMachineDefinition = {
 
@@ -221,16 +201,18 @@ var updateEcho=function(inString){
 					writeEcho();
 				},
 				enter: function() {
-					if (!self.workingResultString){return;}
-					updateEcho('newLine') 
+					if (!self.workingResultString) {
+						return;
+					}
+					updateEcho('newLine')
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
 				escape: function() {
 					self.updateDataModelFunction('reset');
 				},
 				scan: function() {
-					var returnData = self.currentInString.match(/^code(.*?)edoc\r$/, self.currentInString);
-					self.workingResultString=returnData[1];
+					var returnData = self.currentInString.match(/^code(.*?)edoc/, self.currentInString);
+					self.workingResultString = returnData[1];
 					updateEcho(self.workingResultString);
 					this.handle('enter');
 				},
@@ -247,7 +229,9 @@ var updateEcho=function(inString){
 					writeEcho();
 				},
 				enter: function() {
-					if (!self.workingResultString){return;}
+					if (!self.workingResultString) {
+						return;
+					}
 					updateEcho('newLine');
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
@@ -272,7 +256,9 @@ var updateEcho=function(inString){
 					writeEcho();
 				},
 				enter: function() {
-					if (!self.workingResultString){return;}
+					if (!self.workingResultString) {
+						return;
+					}
 					updateEcho('newLine');
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
@@ -310,23 +296,19 @@ var updateEcho=function(inString){
 					onExitGeneral(this);
 				}
 			},
-			reset: function() {
-				console.log('clear data model');
-			},
 			saveDisplay: {
-				_onEnter: function() {
-				},
+				_onEnter: function() {},
 				wait: function() {
 					writePrompt(self.request.prompt);
 				},
 				success: function() {
-					writePrompt(self.request.prompt+bellChar);
+					writePrompt(self.request.prompt + bellChar);
 				},
 				error: function() {
-					writePrompt(self.request.prompt+bellChar+bellChar+bellChar);
+					writePrompt(self.request.prompt + bellChar + bellChar + bellChar);
 				},
 				escape: function() {
-					writePrompt("Can't (esc) "+newLinePositionString()+"during Save");
+					writePrompt("Can't (esc) " + newLinePositionString() + "during Save");
 				},
 
 				_onExit: function() {
@@ -336,11 +318,11 @@ var updateEcho=function(inString){
 		}
 	};
 
-
 	var detectSpecialCharStrings = function() {
 		var inData = self.currentInString,
 			outString;
-		if (inData.match(/^code.*?edoc\r$/)) {
+
+		if (inData.match(/^code.*?edoc/)) {
 			outString = 'scan';
 		} else if (inData.match(/\d/)) {
 			outString = 'number';
@@ -372,7 +354,6 @@ var updateEcho=function(inString){
 
 	//SCANNER OPERATION ====================================
 
-
 	var startupFunction = function() {
 		initDisplay();
 		self.socket.pipe(self.socket);
@@ -390,7 +371,7 @@ var updateEcho=function(inString){
 		startupFunction();
 		self.initiateProcessing();
 	});
-	var port = 1337;
+	
 	server.listen(self.port, self.ipAddress);
 
 	console.log(self.appName + ' listening on port ' + self.port);
@@ -404,14 +385,5 @@ var updateEcho=function(inString){
 
 util.inherits(moduleFunction, events.EventEmitter);
 module.exports = moduleFunction;
-
-
-
-
-
-
-
-
-
 
 

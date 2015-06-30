@@ -16,6 +16,7 @@ projectBase=$scanProjectBase;
 
 # create environment variables for important locations ================================
 loggingDir="$projectBase/logFiles"
+export SCANNER_LOG_FILE_DIRECTORY_PATH=$loggingDir;
 
 # check important directories ================================
 
@@ -48,7 +49,7 @@ alias lpInfo=' echo -e "$scanTestInfo"'
 alias scanrepo="cd $projectBase/system; pwd; git status;";
 
 # === BASIC OPERATION aliases/variables ===========================================
-alias scanserve="clear; nodemon -w $projectBase $projectBase/system/scanServer/scanServer.js";
+alias scanserve="clear; nodemon -w $projectBase $projectBase/system/scanServer/scanServer.js 1337";
 
 # === TEST RUNNING ===========================================
 alias pingScanServer="curl http://127.0.0.1:1337/ping"

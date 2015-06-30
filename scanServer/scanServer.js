@@ -1,7 +1,9 @@
 
-var qtools = require('qtools');
-qtools = new qtools(),
-machina = require('machina');;
+var qtools = require('qtools'),
+	qtools = new qtools(),
+	machina = require('machina'),
+	terminalInterface = require('./terminalInterface'),
+	dataInterface = require('./dataInterface');
 
 //INITIALIZATION ====================================
 
@@ -9,8 +11,22 @@ var self = this;
 
 var projectBasePath = process.env.SCANNER_BASE_PATH;
 if (!projectBasePath) {
-	qtools.die("there must be an environment variable named SCANNER_BASE_PATH pointing to a folder named 'config' containing lightningPipe.js and localEnvironment.js");
+	qtools.die("there must be an environment variable named SCANNER_BASE_PATH pointing to a folder that includes a folder named 'config'");
 }
+
+var loggingBasePath = process.env.SCANNER_LOG_FILE_DIRECTORY_PATH;
+if (!loggingBasePath) {
+	qtools.die("there must be an environment variable named SCANNER_LOG_FILE_DIRECTORY_PATH pointing to a folder for journal and log files");
+}
+
+var config=require(projectBasePath+'/'+'config/configs/qbook.js');
+global.config=config;
+
+var commandLineParms=qtools.parseCommandLine();
+
+var port=commandLineParms.values.port || '1337';
+
+global.terminalId=port;
 
 //LOCAL FUNCTIONS ====================================
 
@@ -50,16 +66,19 @@ var successSaveRequest = {
 	requestInput: 'success',
 	prompt: 'SAVE SUCCESS'
 }
+
 var errorSaveRequest = {
 	type: 'saveDisplay',
 	requestInput: 'error',
 	prompt: 'ERROR REPEAT SCAN'
 }
 
-var terminalInterface = require('./terminalInterface');
-var dataInterface = require('./dataInterface');
+try {
+	var startScreen = qtools.fs.readFileSync(projectBasePath + '/config/startScreen.vt100').toString().replace(/\n/g, '\n\r');
+} catch (e) {
+	var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
+}
 
-var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
 var startList = startScreen.split("\n");
 
 var updateModel = function(propertyName, inData, replyToInput) {
@@ -83,14 +102,14 @@ var restartMachine = function() {
 }
 
 var terminalInit = {
-	port: 1337,
+	port: port,
 	ipAddress: '0.0.0.0',
 	appName: 'inventoryScanner',
 	initialText: startScreen,
 	screenStructure: {
 		promptRow: 5,
 		echoRow: 10,
-		echoLastRow:16,
+		echoLastRow: 16,
 		leftCol: 3
 	},
 	updateDataModelFunction: updateModel,
@@ -103,7 +122,9 @@ var finiteMachine = new machina.Fsm({
 
 	initialize: function(options) {
 		self.terminalInterface = new terminalInterface(terminalInit);
-		self.dataInterface = new dataInterface();
+		self.dataInterface = new dataInterface({
+			helixAccessParms:global.config.getHelixParms()
+		});
 	},
 
 	initialState: 'uninitialized',
@@ -160,13 +181,12 @@ var finiteMachine = new machina.Fsm({
 
 			_onEnter: function() {
 				self.terminalInterface.newRequest(waitForSaveRequest);
-				self.dataInterface.save(self.dataModel, function(err, data) {
-				if (!err){
-					this.handle('success');
+				self.dataInterface.save(global.config.getQueryParms('barcodeEntry'), self.dataModel, function(err, data) {
+					if (!err) {
+						this.handle('success');
+					} else {
+						this.handle('error');
 					}
-				else{
-					this.handle('error');
-				}
 				}.bind(this));
 			},
 
@@ -199,6 +219,7 @@ this.dataModel = {};
 
 
 //END  ============================================================
+
 
 
 
