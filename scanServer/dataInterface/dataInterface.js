@@ -41,9 +41,35 @@ var moduleFunction = function(args) {
 
 
 
+	var getQueryParms = function(schemaName) {
+		var schemata = {
+
+			barcodeEntry: {
+				relation: '_inertProcess',
+				view: 'enterABC',
+				fieldSequenceList: [
+					'scanCode',
+					'quantity',
+					'type',
+					'createDateTime',
+					'terminalId',
+					'refId'
+				],
+				mapping:{
+					terminalId:function(){return global.terminalId; },
+					refId:'refId',
+					createDateTime:'helixDateTimeNow'
+					
+				}
+			}
+		}
+		
+		return schemata[schemaName]
+	}
+
 	//METHODS AND PROPERTIES ====================================
 
-	this.save = function(queryParms, inData, callback) {
+	this.save = function(schemaName, inData, callback) {
 		journal.add(inData, 'all');
 		var localCallback = function(err, data) {
 			if (err) {
@@ -55,7 +81,7 @@ var moduleFunction = function(args) {
 			}
 			callback(err, data);
 		}
-		helixConnector.save(queryParms, inData, localCallback);
+		helixConnector.save(getQueryParms(schemaName), inData, localCallback);
 	}
 
 	//INITIALIZATION ====================================

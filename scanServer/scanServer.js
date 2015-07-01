@@ -14,12 +14,17 @@ if (!projectBasePath) {
 	qtools.die("there must be an environment variable named SCANNER_BASE_PATH pointing to a folder that includes a folder named 'config'");
 }
 
+var scannerConfigName = process.env.SCANNER_CONFIG_NAME;
+if (!scannerConfigName) {
+	qtools.die("there must be an environment variable named SCANNER_CONFIG_NAME referring to a file in SCANNER_BASE_PATH/config/configs/");
+}
+
 var loggingBasePath = process.env.SCANNER_LOG_FILE_DIRECTORY_PATH;
 if (!loggingBasePath) {
 	qtools.die("there must be an environment variable named SCANNER_LOG_FILE_DIRECTORY_PATH pointing to a folder for journal and log files");
 }
 
-var config=require(projectBasePath+'/'+'config/configs/qbook.js');
+var config=require(projectBasePath+'/'+'config/configs/'+scannerConfigName+'.js');
 global.config=config;
 
 var commandLineParms=qtools.parseCommandLine();
@@ -181,7 +186,7 @@ var finiteMachine = new machina.Fsm({
 
 			_onEnter: function() {
 				self.terminalInterface.newRequest(waitForSaveRequest);
-				self.dataInterface.save(global.config.getQueryParms('barcodeEntry'), self.dataModel, function(err, data) {
+				self.dataInterface.save('barcodeEntry', self.dataModel, function(err, data) {
 					if (!err) {
 						this.handle('success');
 					} else {
