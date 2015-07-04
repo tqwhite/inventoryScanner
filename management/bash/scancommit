@@ -17,7 +17,7 @@ git commit -m"$1"
 
 echo -e "\n\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED =======\n\n";
+echo -e "\n\nFINISHED ======= Inventory Scanner Server\n\n";
 
 popd > /dev/null
 
@@ -32,7 +32,7 @@ git commit -m"$1"
 
 echo -e "\n\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED =======\n\n";
+echo -e "\n\nFINISHED ======= Helix Connector\n\n";
 
 popd > /dev/null
 
@@ -47,6 +47,6 @@ git commit -m"$1"
 
 echo -e "\n\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED =======\n\n";
+echo -e "\n\nFINISHED ======= qTools Utilities\n\n";
 
 popd > /dev/null
