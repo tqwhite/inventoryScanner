@@ -9,6 +9,7 @@ fi
 pushd $scanProjectBase/system > /dev/null
 echo -e "\n\nINVENTORY SCANNER SERVER\n";
 pwd;
+echo -e "\n";
 git status;
 echo -e "\nADDING & COMMITTING =======\n\n";
 
@@ -26,6 +27,7 @@ popd > /dev/null
 pushd $scanProjectBase/system/node_modules/helixConnector > /dev/null
 echo -e "\n\nHELIX CONNECTOR\n";
 pwd;
+echo -e "\n";
 git status;
 echo -e "\nADDING & COMMITTING =======\n\n";
 
@@ -43,6 +45,7 @@ popd > /dev/null
 pushd $scanProjectBase/node_modules > /dev/null
 echo -e "\n\nQTOOLS UTILITIES\n";
 pwd;
+echo -e "\n";
 git status;
 echo -e "\nADDING & COMMITTING =======\n\n";
 

@@ -4,6 +4,7 @@
 pushd $scanProjectBase/system > /dev/null
 echo -e "\n\nUPDATING INVENTORY SCANNER SERVER\n";
 pwd;
+echo -e "\n";
 git pull
 echo -e "\nFINISHED ======= Inventory Scanner Server\n\n";
 
@@ -13,6 +14,7 @@ popd > /dev/null
 pushd $scanProjectBase/system/node_modules/helixConnector > /dev/null
 echo -e "\n\nUPDATING HELIX CONNECTOR\n";
 pwd;
+echo -e "\n";
 git pull
 echo -e "\nFINISHED ======= Helix Connector\n\n";
 
@@ -21,6 +23,8 @@ popd > /dev/null
 
 pushd $scanProjectBase/node_modules > /dev/null
 echo -e "\n\nUPDATING QTOOLS UTILITIES\n";
+pwd;
+echo -e "\n";
 git pull
 echo -e "\nFINISHED ======= qTools Utilities\n\n";
 
