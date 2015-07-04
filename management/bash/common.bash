@@ -9,7 +9,9 @@ scanTestInfo="\
 COMMANDS\n\n\
 start1337 - start Inventory Scanner server  on port 1337\n\
 \n\
-fakescanner - use terminal as a pretend scanner for testing\n\
+fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc')\n\
+\n\
+updateScanServer - get the latest code (if scancommit was done elsewhere)\n\
 ----------------------------------\n\
 ";
 

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+echo -e "\n\nERROR: You must supply a commit message";
+exit;
+fi
+
+
+pushd $scanProjectBase/system > /dev/null
+echo "Main Code Base";
+git status;
+echo -e "\n\nADDING & COMMITTING =======\n\n";
+
+git add --all .
+
+git commit -m"$1"
+
+echo -e "\n\nPUSHING =======\n\n";
+git push
+echo -e "\n\nFINISHED =======\n\n";
+
+popd > /dev/null
+
+pushd $scanProjectBase/node_modules/helixConnector > /dev/null
+echo "Helix Connector";
+git status;
+echo -e "\n\nADDING & COMMITTING =======\n\n";
+
+git add --all .
+
+git commit -m"$1"
+
+echo -e "\n\nPUSHING =======\n\n";
+git push
+echo -e "\n\nFINISHED =======\n\n";
+
+popd > /dev/null
+
+pushd $scanProjectBase/node_modules > /dev/null
+echo "qTools Utilities";
+git status;
+echo -e "\n\nADDING & COMMITTING =======\n\n";
+
+git add --all .
+
+git commit -m"$1"
+
+echo -e "\n\nPUSHING =======\n\n";
+git push
+echo -e "\n\nFINISHED =======\n\n";
+
+popd > /dev/null

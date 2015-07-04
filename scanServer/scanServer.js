@@ -24,14 +24,14 @@ if (!loggingBasePath) {
 	qtools.die("there must be an environment variable named SCANNER_LOG_FILE_DIRECTORY_PATH pointing to a folder for journal and log files");
 }
 
-var config=require(projectBasePath+'/'+'config/configs/'+scannerConfigName+'.js');
-global.config=config;
+var config = require(projectBasePath + '/' + 'config/configs/' + scannerConfigName + '.js');
+global.config = config;
 
-var commandLineParms=qtools.parseCommandLine();
+var commandLineParms = qtools.parseCommandLine();
 
-var port=commandLineParms.values.port || '1337';
+var port = commandLineParms.values.port || '1337';
 
-global.terminalId=port;
+global.terminalId = port;
 
 //LOCAL FUNCTIONS ====================================
 
@@ -106,6 +106,16 @@ var restartMachine = function() {
 	finiteMachine.transition('getScan');
 }
 
+var saveCallback = function(err, data) {
+	if (!err) {
+		this.handle('success');
+	} else {
+
+console.log(err.toString());
+		this.handle('error');
+	}
+};
+
 var terminalInit = {
 	port: port,
 	ipAddress: '0.0.0.0',
@@ -128,7 +138,7 @@ var finiteMachine = new machina.Fsm({
 	initialize: function(options) {
 		self.terminalInterface = new terminalInterface(terminalInit);
 		self.dataInterface = new dataInterface({
-			helixAccessParms:global.config.getHelixParms()
+			helixAccessParms: global.config.getHelixParms()
 		});
 	},
 
@@ -186,13 +196,7 @@ var finiteMachine = new machina.Fsm({
 
 			_onEnter: function() {
 				self.terminalInterface.newRequest(waitForSaveRequest);
-				self.dataInterface.save('barcodeEntry', self.dataModel, function(err, data) {
-					if (!err) {
-						this.handle('success');
-					} else {
-						this.handle('error');
-					}
-				}.bind(this));
+				self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
 			},
 
 			'success': function() {
@@ -224,6 +228,7 @@ this.dataModel = {};
 
 
 //END  ============================================================
+
 
 
 
