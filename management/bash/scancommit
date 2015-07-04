@@ -7,46 +7,51 @@ fi
 
 
 pushd $scanProjectBase/system > /dev/null
-echo -e "\n\nINVENTORY SCANNER SERVER";
+echo -e "\n\nINVENTORY SCANNER SERVER\n";
+pwd;
 git status;
-echo -e "\n\nADDING & COMMITTING =======\n\n";
+echo -e "\nADDING & COMMITTING =======\n\n";
 
 git add --all .
 
 git commit -m"$1"
 
-echo -e "\n\nPUSHING =======\n\n";
+echo -e "\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED ======= Inventory Scanner Server\n\n";
+echo -e "\nFINISHED ======= Inventory Scanner Server\n\n";
 
 popd > /dev/null
+
 
 pushd $scanProjectBase/system/node_modules/helixConnector > /dev/null
-echo -e "\n\nHELIX CONNECTOR";
+echo -e "\n\nHELIX CONNECTOR\n";
+pwd;
 git status;
-echo -e "\n\nADDING & COMMITTING =======\n\n";
+echo -e "\nADDING & COMMITTING =======\n\n";
 
 git add --all .
 
 git commit -m"$1"
 
-echo -e "\n\nPUSHING =======\n\n";
+echo -e "\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED ======= Helix Connector\n\n";
+echo -e "\nFINISHED ======= Helix Connector\n\n";
 
 popd > /dev/null
 
+
 pushd $scanProjectBase/node_modules > /dev/null
-echo -e "\n\nQTOOLS UTILITIES";
+echo -e "\n\nQTOOLS UTILITIES\n";
+pwd;
 git status;
-echo -e "\n\nADDING & COMMITTING =======\n\n";
+echo -e "\nADDING & COMMITTING =======\n\n";
 
 git add --all .
 
 git commit -m"$1"
 
-echo -e "\n\nPUSHING =======\n\n";
+echo -e "\nPUSHING =======\n\n";
 git push
-echo -e "\n\nFINISHED ======= qTools Utilities\n\n";
+echo -e "\nFINISHED ======= qTools Utilities\n\n";
 
 popd > /dev/null
