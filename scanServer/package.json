@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/tqwhite/inventoryScanner/issues"
   },
-  "homepage": "https://github.com/tqwhite/inventoryScanner"
+  "homepage": "https://github.com/tqwhite/inventoryScanner",
+  "dependencies":{
+  	"helixConnector":"git://github.com/tqwhite/helixConnector"
+  }
 }
