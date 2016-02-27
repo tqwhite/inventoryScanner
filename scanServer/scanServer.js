@@ -39,6 +39,21 @@ var resetModel = function() {
 	self.dataModel = {};
 }
 
+
+
+
+
+var chooseUiRequest = {
+	type: 'chooseUi',
+	dataModelPropertyName: 'uiChoice',
+	replyToInput: 'inputA',
+	prompt: 'Choose User Mode<!newLine!>a:General Entry<!newLine!>b:Immediate Subtract<!newLine!>'
+};
+
+
+
+
+
 var scanRequest = {
 	type: 'wantScan',
 	dataModelPropertyName: 'scanCode',
@@ -49,6 +64,14 @@ var scanRequest = {
 var quantityRequest = {
 	type: 'wantNumber',
 	dataModelPropertyName: 'quantity',
+	replyToInput: 'inputA',
+	prompt: 'Enter Quantity'
+};
+
+var comboRequest = {
+	type: 'wantCombo',
+	dataModelPropertyName: 'quantity',
+	prefixCharPropertyName: 'type',
 	replyToInput: 'inputA',
 	prompt: 'Enter Quantity'
 };
@@ -78,23 +101,65 @@ var errorSaveRequest = {
 	prompt: 'ERROR REPEAT SCAN'
 }
 
-try {
-	var startScreen = qtools.fs.readFileSync(projectBasePath + '/config/startScreen.vt100').toString().replace(/\n/g, '\n\r');
-} catch (e) {
-	var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/startScreen.vt100').toString().replace(/\n/g, '\n\r');
+var getScreenBackground = function(name) {
+
+
+	try {
+		var startScreen = qtools.fs.readFileSync(projectBasePath + '/config/' + name).toString().replace(/\n/g, '\n\r');
+	} catch (e) {
+		var startScreen = qtools.fs.readFileSync(projectBasePath + '/system/scanServer/' + name).toString().replace(/\n/g, '\n\r');
+	}
+
+	return startScreen
 }
+
+var startScreen = getScreenBackground('startScreen.vt100');
 
 var startList = startScreen.split("\n");
 
-var updateModel = function(propertyName, inData, replyToInput) {
-	if (propertyName == 'reset') {
-		restartMachine();
-		return;
-	}
-
-	self.dataModel[propertyName] = inData;
-	finiteMachine.handle(replyToInput);
+var uiMap = {
+	a: 'generalEntry',
+	b: 'autoSubtractEntry'
 };
+
+var setUiChoice = function(propertyName, inData, replyToInput) {
+	self.uiChoice = inData ? inData : 'a';
+	finiteMachine.handle(replyToInput);
+	return;
+};
+
+var getUpdateModelFunction = function(finiteMachine) {
+	return function(propertyName, inData, replyToInput) {
+		if (propertyName == 'reset') {
+			restartMachine();
+			return;
+		}
+		if (propertyName == 'uiChoice') {
+			self.uiChoice = uiMap[inData] ? uiMap[inData] : 'generalEntry';
+			finiteMachine.handle(replyToInput);
+			return;
+		}
+
+		self.dataModel[propertyName] = inData;
+		
+		if (replyToInput){
+			finiteMachine.handle(replyToInput);
+		}
+	};
+};
+
+
+/*
+
+next:
+
+move local vars into an object that can be sent to machine model constructors
+
+*/
+
+var startUiMachine = function() {
+	finiteMachine.transition('chooseUi');
+}
 
 
 var startMachine = function() {
@@ -111,7 +176,7 @@ var saveCallback = function(err, data) {
 		this.handle('success');
 	} else {
 
-console.log(err.toString());
+		console.log(err.toString());
 		this.handle('error');
 	}
 };
@@ -127,13 +192,218 @@ var terminalInit = {
 		echoLastRow: 16,
 		leftCol: 3
 	},
-	updateDataModelFunction: updateModel,
-	initiateProcessing: startMachine
+	updateDataModelFunction: setUiChoice,
+	initiateProcessing: startUiMachine
 };
 
 //MACHINA ====================================
 
-var finiteMachine = new machina.Fsm({
+
+
+var startActionMachine = function(uiChoice) {
+	var machineSpecs;
+	var firstStep = '';
+
+	switch (uiMap[uiChoice]) {
+		case 'generalEntry':
+			machineSpecs = {
+
+				initialize: function(options) {
+					// 		self.terminalInterface = new terminalInterface(terminalInit);
+					// 		self.dataInterface = new dataInterface({
+					// 			helixAccessParms: global.config.getHelixParms()
+					// 		});
+				},
+
+				initialState: 'getScan',
+
+				states: {
+					uninitialized: {
+						"*": function() {
+							this.deferUntilTransition();
+						}
+					},
+					getScan: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(scanRequest);
+						},
+
+						'inputA': function() {
+							this.transition('getQuantity');
+						},
+
+						'reset': function() {
+							restartMachine();
+						}
+					},
+					getQuantity: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(quantityRequest);
+						},
+
+						'inputA': function() {
+							this.transition('getType');
+						},
+
+						'reset': function() {
+							restartMachine();
+						}
+					},
+					getType: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(typeRequest);
+						},
+
+						'inputA': function() {
+							this.transition('save');
+						},
+
+						'reset': function() {
+							restartMachine();
+						}
+					},
+					save: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(waitForSaveRequest);
+							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
+						},
+
+						'success': function() {
+							self.terminalInterface.newRequest(successSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+							}.bind(this), 3000);
+						},
+
+						'error': function() {
+							self.terminalInterface.newRequest(errorSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+							}.bind(this), 3000);
+						}
+					},
+
+					reset: function() {
+						restartMachine();
+					}
+				}
+			};
+			firstStep = 'getScan';
+			break;
+
+		case 'autoSubtractEntry':
+			machineSpecs = {
+
+				initialize: function(options) {
+					// 		self.terminalInterface = new terminalInterface(terminalInit);
+					// 		self.dataInterface = new dataInterface({
+					// 			helixAccessParms: global.config.getHelixParms()
+					// 		});
+				},
+
+				initialState: 'getScan',
+
+				states: {
+					uninitialized: {
+						"*": function() {
+							this.deferUntilTransition();
+						}
+					},
+					getScan: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(scanRequest);
+						},
+
+						'inputA': function() {
+							this.transition('getQuantity');
+						},
+
+						'reset': function() {
+							restartMachine();
+						}
+					},
+					getQuantity: {
+
+						_onEnter: function() {
+							var request = qtools.clone(comboRequest);
+							request.prompt = "Auto-Subtract<!newLine!>Quantity";
+							self.terminalInterface.newRequest(request);
+							self.dataModel.type = 'b'; //this is auto-subtract
+						},
+
+						'inputA': function() {
+//							this.transition('save');
+							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
+						},
+
+						'success': function() {
+							self.terminalInterface.newRequest(successSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+							}.bind(this), 3000);
+						},
+
+						'error': function() {
+							self.terminalInterface.newRequest(errorSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+							}.bind(this), 3000);
+						},
+
+						'reset': function() {
+							restartMachine();
+						}
+					},
+// 					save: {
+// 
+// 						_onEnter: function() {
+// 							self.terminalInterface.newRequest(waitForSaveRequest);
+// 							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
+// 						},
+// 
+// 						'success': function() {
+// 							self.terminalInterface.newRequest(successSaveRequest);
+// 							setTimeout(function() {
+// 								this.transition('getScan');
+// 							}.bind(this), 3000);
+// 						},
+// 
+// 						'error': function() {
+// 							self.terminalInterface.newRequest(errorSaveRequest);
+// 							setTimeout(function() {
+// 								this.transition('getScan');
+// 							}.bind(this), 3000);
+// 						}
+// 					},
+
+					reset: function() {
+						restartMachine();
+					}
+				}
+			};
+			self.terminalInterface.initialText = getScreenBackground('subtractModeScreen.vt100'); //needs to precede the start of the machine
+			firstStep = 'getScan';
+
+			break;
+
+	}
+	finiteMachine = new machina.Fsm(machineSpecs);
+	self.terminalInterface.updateDataModelFunction = getUpdateModelFunction(finiteMachine);
+
+
+	finiteMachine.transition(firstStep);
+}
+
+
+
+
+
+var chooseUiMachine = {
 
 	initialize: function(options) {
 		self.terminalInterface = new terminalInterface(terminalInit);
@@ -150,67 +420,19 @@ var finiteMachine = new machina.Fsm({
 				this.deferUntilTransition();
 			}
 		},
-		getScan: {
+		chooseUi: {
 
 			_onEnter: function() {
-				self.terminalInterface.newRequest(scanRequest);
+				self.terminalInterface.newRequest(chooseUiRequest);
 			},
 
 			'inputA': function() {
-				this.transition('getQuantity');
+				startActionMachine(self.uiChoice);
+				return;
 			},
 
 			'reset': function() {
 				restartMachine();
-			}
-		},
-		getQuantity: {
-
-			_onEnter: function() {
-				self.terminalInterface.newRequest(quantityRequest);
-			},
-
-			'inputA': function() {
-				this.transition('getType');
-			},
-
-			'reset': function() {
-				restartMachine();
-			}
-		},
-		getType: {
-
-			_onEnter: function() {
-				self.terminalInterface.newRequest(typeRequest);
-			},
-
-			'inputA': function() {
-				this.transition('save');
-			},
-
-			'reset': function() {
-				restartMachine();
-			}
-		},
-		save: {
-
-			_onEnter: function() {
-				self.terminalInterface.newRequest(waitForSaveRequest);
-				self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
-			},
-
-			'success': function() {
-				self.terminalInterface.newRequest(successSaveRequest);
-				setTimeout(function() {
-					this.transition('getScan');
-				}.bind(this), 3000);
-			},
-
-			'error': function() {
-				self.terminalInterface.newRequest(errorSaveRequest);
-				setTimeout(function() {
-					this.transition('getScan');
-				}.bind(this), 3000);
 			}
 		},
 
@@ -218,9 +440,9 @@ var finiteMachine = new machina.Fsm({
 			restartMachine();
 		}
 	}
-}
+};
 
-);
+var finiteMachine = new machina.Fsm(chooseUiMachine);
 
 //METHODS AND PROPERTIES ====================================
 
@@ -228,6 +450,11 @@ this.dataModel = {};
 
 
 //END  ============================================================
+
+
+
+
+
 
 
 

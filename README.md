@@ -48,6 +48,13 @@ You can then PASTE (typing won't work) a sample code with delimiter, eg,
 
 SCANNER SETUP
 
+If the scanner is new, find the menu Administration, then Startup & Servers, then Text Mode (at the 
+bottom of the list) should be changed to 'enabled'. Then reboot to set the preference.
+(This info is on the instruction sheet that comes with the device.)
+
+If this is not done, the user interface is more 'user friendly' and therefore incomprehensible. 
+The following instructions rely on the Text Mode control structure.
+
 Initialize Server Access
 
 1) Press the esc key a lot of times until you see the Main Menu.
@@ -55,6 +62,7 @@ Initialize Server Access
 2) Scroll on it using the up/down arrow keys until you see Settings and USER Options. Press Enter.
 
 3) Follow package directions to get access to your wifi network using Network and Wifi Setup.
+(Note: this device only works on 2.4gh wifi networks.)
 
 4) Then choose Host Servers and VT Setup then Host Server List then Host 1.
 

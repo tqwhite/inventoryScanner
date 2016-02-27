@@ -113,7 +113,6 @@ var moduleFunction = function(args) {
 	// WRITE ROUTINES =================================
 
 	var initDisplay = function() {
-
 		writeToDevice(setNewPositionGetString({
 					row: 0,
 					col: 0
@@ -126,7 +125,7 @@ var moduleFunction = function(args) {
 
 	var writePrompt = function(writeString) {
 		if (writeString.match('<!newLine!>')) {
-			writeString = writeString.replace('<!newLine!>', newLinePositionString());
+			writeString = writeString.replace(/<!newLine!>/g, newLinePositionString());
 		} else {
 			writeString += newLinePositionString();
 		}
@@ -192,6 +191,27 @@ var moduleFunction = function(args) {
 					this.deferUntilTransition();
 				}
 			},
+			chooseUi : {
+				_onEnter: function() {
+					initDisplay();
+					onEnterGeneral(this);
+				},
+				'*': function() {
+					writeEcho();
+				},
+				char: function() {
+					if (!self.currentInString.match(/a|b/)) {
+						writeEcho();
+						return;
+					}
+					self.workingResultString += self.currentInString;
+					updateEcho(self.currentInString);
+					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
+				},
+				_onExit: function() {
+					onExitGeneral(this);
+				}
+			},
 			wantScan: {
 				_onEnter: function() {
 					initDisplay();
@@ -242,6 +262,56 @@ var moduleFunction = function(args) {
 					self.workingResultString += self.currentInString;
 					updateEcho(self.currentInString);
 					writePrompt('Enter to Keep');
+				},
+
+				_onExit: function() {
+					onExitGeneral(this);
+				}
+			},
+			wantCombo: {
+				_onEnter: function() {
+					onEnterGeneral(this);
+				},
+				'*': function() {
+					writeEcho();
+				},
+				enter: function() {
+					if (!self.workingResultString) {
+						return;
+					}
+					updateEcho('newLine');
+					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
+				},
+				escape: function() {
+					self.updateDataModelFunction('reset');
+				},
+				number: function() {
+					self.workingResultString += self.currentInString;
+					updateEcho(self.currentInString);
+					writePrompt('Enter to Keep');
+				},
+				char: function() {
+					if (self.workingResultString){
+						return; //if a number has already been added, ignore input
+					}
+					if (!self.currentInString.match(/a|b|c/)) {
+						writeEcho();
+						return;
+					}
+					self.updateDataModelFunction(self.request.prefixCharPropertyName, self.currentInString);
+					updateEcho(self.currentInString);
+					
+					switch(self.currentInString){
+						case 'a':
+							writePrompt('ADD MODE');
+						break;
+						case 'b':
+							writePrompt('SUBTRACT MODE');
+						break;
+						case 'c':
+							writePrompt('REPLACE MODE');
+						break;
+					}
 				},
 
 				_onExit: function() {

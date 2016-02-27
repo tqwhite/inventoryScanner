@@ -1,0 +1,7 @@
+#!/bin/bash
+
+clear;
+
+echo -e '\n\nremember to enter escape and mode character and that you have to paste code0000000edoc\n\n'; 
+
+telnet localhost 1337

@@ -3,7 +3,7 @@ var qtools = require('qtools'),
 	qtools = new qtools(module),
 	events = require('events'),
 	util = require('util'),
-	helixConnector = require('helixConnector'),
+	helixConnector = require('../../node_modules/helixConnector/helixConnector/helixConnector.js'),
 	journal = require('journal');
 
 //START OF moduleFunction() ============================================================
@@ -38,7 +38,10 @@ var moduleFunction = function(args) {
 
 
 	//LOCAL FUNCTIONS ====================================
-
+	var authGoodies = {
+		userId: 'tq@justkidding.com',
+		authToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJ0cUBqdXN0a2lkZGluZy5jb20iLCJpbnN0YW5jZUlkIjoidHF3aGl0ZS9xYm9vayIsImlhdCI6MTQ0OTkzNTE2N30.dJRnMa2VLJBsy7bXfPFvcb3mawd1a29PJ46EpojUcQY'
+	};
 
 
 	var getQueryParms = function(schemaName) {
@@ -81,14 +84,24 @@ var moduleFunction = function(args) {
 			}
 			callback(err, data);
 		}
-		helixConnector.save(getQueryParms(schemaName), inData, localCallback);
+		
+		
+		helixConnector.process('saveOne', {
+			helixSchema: getQueryParms(schemaName),
+			debug: false,
+			inData: inData,
+			callback: localCallback
+		});
+		
+		
 	}
 
 	//INITIALIZATION ====================================
 
 	journal = new journal();
 	helixConnector = new helixConnector({
-		helixAccessParms:self.helixAccessParms
+		helixAccessParms:self.helixAccessParms,
+		authGoodies: authGoodies
 	});
 
 	return this;

@@ -11,7 +11,7 @@ start1337 - start Inventory Scanner server  on port 1337\n\
 \n\
 fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc')\n\
 \n\
-updateScanServer - get the latest code (if scancommit was done elsewhere)\n\
+updateps - get the latest code (if pscommit was done elsewhere)\n\
 ----------------------------------\n\
 ";
 
@@ -72,5 +72,4 @@ fi
 alias tailLog="tail -f -n 20 $loggingDir/operation.log | bunyan"
 alias killLog="rm $loggingDir/operation.log"
 
-alias fakescanner="echo -e '\n\nremember to enter escape and mode character and that you have to paste code0000000edoc\n\n'; telnet localhost 1337"
 
