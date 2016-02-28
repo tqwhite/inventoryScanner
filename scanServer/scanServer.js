@@ -449,7 +449,7 @@ self.dataModel = {};
 var terminalInit = {
 	port: port,
 	ipAddress: '0.0.0.0',
-	appName: 'inventoryScanner',
+	appName: 'Inventory Scanner v2.0',
 	initialText: initialScreen,
 	screenStructure: {
 		promptRow: 5,
