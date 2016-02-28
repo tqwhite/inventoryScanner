@@ -5,7 +5,6 @@ var qtools = require('qtools'),
 	util = require('util'),
 	helixConnector = require('../../node_modules/helixConnector/helixConnector/helixConnector.js'),
 	journal = require('journal');
-
 //START OF moduleFunction() ============================================================
 
 var moduleFunction = function(args) {

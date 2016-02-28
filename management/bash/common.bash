@@ -12,6 +12,8 @@ start1337 - start Inventory Scanner server  on port 1337\n\
 fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc')\n\
 \n\
 updateps - get the latest code (if pscommit was done elsewhere)\n\
+\n\
+scanrepo - cd to the repository\n\
 ----------------------------------\n\
 ";
 

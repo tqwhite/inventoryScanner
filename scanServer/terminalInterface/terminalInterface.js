@@ -113,6 +113,12 @@ var moduleFunction = function(args) {
 	// WRITE ROUTINES =================================
 
 	var initDisplay = function() {
+console.log("\n=-=============   initDisplay  =========================\n");
+console.log("self.initialText="+self.initialText);
+
+
+
+
 		writeToDevice(setNewPositionGetString({
 					row: 0,
 					col: 0
@@ -191,8 +197,9 @@ var moduleFunction = function(args) {
 					this.deferUntilTransition();
 				}
 			},
-			chooseUi : {
+			chooseUi: {
 				_onEnter: function() {
+
 					initDisplay();
 					onEnterGeneral(this);
 				},
@@ -200,12 +207,14 @@ var moduleFunction = function(args) {
 					writeEcho();
 				},
 				char: function() {
+
 					if (!self.currentInString.match(/a|b/)) {
 						writeEcho();
 						return;
 					}
 					self.workingResultString += self.currentInString;
 					updateEcho(self.currentInString);
+
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
 				},
 				_onExit: function() {
@@ -291,7 +300,7 @@ var moduleFunction = function(args) {
 					writePrompt('Enter to Keep');
 				},
 				char: function() {
-					if (self.workingResultString){
+					if (self.workingResultString) {
 						return; //if a number has already been added, ignore input
 					}
 					if (!self.currentInString.match(/a|b|c/)) {
@@ -300,17 +309,17 @@ var moduleFunction = function(args) {
 					}
 					self.updateDataModelFunction(self.request.prefixCharPropertyName, self.currentInString);
 					updateEcho(self.currentInString);
-					
-					switch(self.currentInString){
+
+					switch (self.currentInString) {
 						case 'a':
 							writePrompt('ADD MODE');
-						break;
+							break;
 						case 'b':
 							writePrompt('SUBTRACT MODE');
-						break;
+							break;
 						case 'c':
 							writePrompt('REPLACE MODE');
-						break;
+							break;
 					}
 				},
 
@@ -340,7 +349,7 @@ var moduleFunction = function(args) {
 						writeEcho();
 						return;
 					}
-					self.workingResultString += self.currentInString;
+					self.workingResultString = self.currentInString;
 					updateEcho(self.currentInString);
 					writePrompt('Enter to SAVE');
 				},
@@ -422,6 +431,15 @@ var moduleFunction = function(args) {
 
 	this.workingResultString = '';
 
+	this.writeSubStatus = function(writeString) {
+		if (writeString.match('<!newLine!>')) {
+			writeString = writeString.replace(/<!newLine!>/g, newLinePositionString());
+		} else {
+			writeString += newLinePositionString();
+		}
+		writeToDevice(escPrefix + self.screenStructure.subStatusRow + ';' + self.screenStructure.leftCol + 'H' + clearToRight + writeString + clearToRight + currentPositionString());
+	}
+
 	//SCANNER OPERATION ====================================
 
 	var startupFunction = function() {
@@ -441,7 +459,7 @@ var moduleFunction = function(args) {
 		startupFunction();
 		self.initiateProcessing();
 	});
-	
+
 	server.listen(self.port, self.ipAddress);
 
 	console.log(self.appName + ' listening on port ' + self.port);
@@ -455,5 +473,6 @@ var moduleFunction = function(args) {
 
 util.inherits(moduleFunction, events.EventEmitter);
 module.exports = moduleFunction;
+
 
 
