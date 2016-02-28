@@ -71,9 +71,11 @@ var moduleFunction = function(args) {
 
 	// UTILITY STRING MAKERS =================================
 
-	var echoStartPosition = {
+	var echoStartPosition = function(){
+	return {
 		row: self.screenStructure.echoRow,
 		col: self.screenStructure.leftCol
+	};
 	}
 
 	var setNewPositionGetString = function(cursorPosition) {
@@ -113,16 +115,10 @@ var moduleFunction = function(args) {
 	// WRITE ROUTINES =================================
 
 	var initDisplay = function() {
-console.log("\n=-=============   initDisplay  =========================\n");
-console.log("self.initialText="+self.initialText);
-
-
-
-
 		writeToDevice(setNewPositionGetString({
 					row: 0,
 					col: 0
-				}) + self.initialText + setNewPositionGetString(echoStartPosition));
+				}) + self.initialText + setNewPositionGetString(echoStartPosition()));
 
 		self.workingResultString = '';
 		echoBuffer = '';
@@ -142,7 +138,7 @@ console.log("self.initialText="+self.initialText);
 
 	var echoBuffer = '',
 		echoLineCount = 1,
-		prevPosition = echoStartPosition,
+		prevPosition = echoStartPosition(),
 		clearToRight = escPrefix + '0K';
 
 	var updateEcho = function(inString) {
@@ -158,7 +154,7 @@ console.log("self.initialText="+self.initialText);
 
 	var writeEcho = function() {
 		var echoOutput = echoBuffer;
-		writeToDevice(formatPositionString(echoStartPosition) + echoBuffer + echoPaddingString());
+		writeToDevice(formatPositionString(echoStartPosition()) + echoBuffer + echoPaddingString());
 	}
 
 	var echoPaddingString = function(inString) {
@@ -206,13 +202,18 @@ console.log("self.initialText="+self.initialText);
 				'*': function() {
 					writeEcho();
 				},
+				enter: function() {
+					updateEcho(self.currentInString);
+					self.workingResultString = '<enter>';
+					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
+				},
 				char: function() {
 
-					if (!self.currentInString.match(/a|b/)) {
+					if (!self.currentInString.match(/a|b|c/)) {
 						writeEcho();
 						return;
 					}
-					self.workingResultString += self.currentInString;
+					self.workingResultString = self.currentInString;
 					updateEcho(self.currentInString);
 
 					self.updateDataModelFunction(self.request.dataModelPropertyName, self.workingResultString, self.request.replyToInput);
@@ -473,6 +474,7 @@ console.log("self.initialText="+self.initialText);
 
 util.inherits(moduleFunction, events.EventEmitter);
 module.exports = moduleFunction;
+
 
 
 

@@ -9,6 +9,8 @@ scanTestInfo="\
 COMMANDS\n\n\
 start1337 - start Inventory Scanner server  on port 1337\n\
 \n\
+start1338 - start Inventory Scanner server  on port 1338\n\
+\n\
 fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc')\n\
 \n\
 updateps - get the latest code (if pscommit was done elsewhere)\n\
@@ -58,6 +60,8 @@ alias scanrepo="cd $projectBase/system; pwd; git status;";
 alias scanserve="clear; nodemon -w $projectBase $projectBase/system/scanServer/scanServer.js --port=1337";
 
 alias start1337="node $projectBase/system/scanServer/scanServer.js --port=1337";
+
+alias start1338="node $projectBase/system/scanServer/scanServer.js --port=1338";
 
 alias startscannerlist=$projectBase/config/initializationScripts/siteSpecific/startScannerNodes
 

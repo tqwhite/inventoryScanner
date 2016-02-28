@@ -39,7 +39,7 @@ var chooseUiRequest = {
 	type: 'chooseUi',
 	dataModelPropertyName: 'uiChoice',
 	replyToInput: 'inputB',
-	prompt: 'Choose User Mode<!newLine!>a:General Entry<!newLine!>b:Immediate Subtract<!newLine!>'
+	prompt: 'Choose User Mode<!newLine!><!newLine!> a: Auto Add<!newLine!> b: Auto Subtract<!newLine!> c: Auto Replace<!newLine!>enter: Manual Mode<!newLine!>'
 };
 
 var scanRequest = {
@@ -105,8 +105,10 @@ var initialScreen = getScreenBackground('startScreen.vt100');
 var startList = initialScreen.split("\n");
 
 var uiMap = {
-	a: 'generalEntry',
-	b: 'autoSubtractEntry'
+	'<enter>': 'generalEntry',
+	a: 'autoAddEntry',
+	b: 'autoSubtractEntry',
+	c: 'autoReplaceEntry'
 };
 
 //MACHINA SUPPORT FUNCTIONS ====================================
@@ -172,21 +174,96 @@ var constructSubStatus=function(dataModel){
 };
 
 //MACHINA ====================================
-console.log("\n=-=============   MACHINA  =========================\n");
-
-
 
 var startActionMachine = function(uiChoice) {
 
 	var machineSpecs;
 	var firstStep = '';
+	
+	var bindDefaultType=function(uiChoice){
+		return function(){
+			return uiChoice;
+		}
+	};
+	
+	var getDefaultType=function(){}
+	
+	var autoMachine = {
 
+				initialize: function(options) {
+				},
+
+				initialState: 'getScan',
+
+				states: {
+					uninitialized: {
+						"*": function() {
+							this.deferUntilTransition();
+						}
+					},
+					getScan: {
+
+						_onEnter: function() {
+							self.terminalInterface.newRequest(scanRequest);
+						},
+
+						'inputA': function() {
+							this.transition('getQuantity');
+						},
+
+						'inputB': function() {
+
+							startActionMachine(self.uiChoice);
+						},
+
+						'reset': function() {
+							startUiMachine();
+						}
+					},
+					getQuantity: {
+
+						_onEnter: function() {
+							var request = qtools.clone(comboRequest);
+							request.prompt = "Enter Quantity";
+							self.terminalInterface.newRequest(request);
+							self.dataModel.type = getDefaultType(); //this is auto-subtract
+						},
+
+						'inputA': function() {
+							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
+						},
+
+						'success': function() { //autoSave has save success here
+							self.terminalInterface.newRequest(successSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
+							}.bind(this), 1000);
+						},
+
+						'error': function() {
+							self.terminalInterface.newRequest(errorSaveRequest);
+							setTimeout(function() {
+								this.transition('getScan');
+							}.bind(this), 1000);
+						},
+
+						'reset': function() {
+							restartScanning();
+						}
+					},
+					reset: function() {
+						restartScanning();
+					}
+				}
+			};
+			
 	switch (uiMap[uiChoice]) {
 		case 'generalEntry':
-
 			machineSpecs = {
 
 				initialize: function(options) {
+			self.terminalInterface.echoRow=10;
 			self.terminalInterface.initialText = getScreenBackground('generalEntry.vt100');
 				},
 
@@ -247,14 +324,14 @@ var startActionMachine = function(uiChoice) {
 							setTimeout(function() {
 								this.transition('getScan');
 								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
-							}.bind(this), 3000);
+							}.bind(this), 1000);
 						},
 
 						'error': function() {
 							self.terminalInterface.newRequest(errorSaveRequest);
 							setTimeout(function() {
 								this.transition('getScan');
-							}.bind(this), 3000);
+							}.bind(this), 1000);
 						},
 
 						'reset': function() {
@@ -274,14 +351,14 @@ var startActionMachine = function(uiChoice) {
 							setTimeout(function() {
 								this.transition('getScan');
 								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
-							}.bind(this), 3000);
+							}.bind(this), 1000);
 						},
 
 						'error': function() {
 							self.terminalInterface.newRequest(errorSaveRequest);
 							setTimeout(function() {
 								this.transition('getScan');
-							}.bind(this), 3000);
+							}.bind(this), 1000);
 						}
 					},
 
@@ -293,79 +370,28 @@ var startActionMachine = function(uiChoice) {
 			firstStep = 'getScan';
 			break;
 
-		case 'autoSubtractEntry':
-			machineSpecs = {
-
-				initialize: function(options) {
-			self.terminalInterface.initialText = getScreenBackground('subtractModeScreen.vt100');
-				},
-
-				initialState: 'getScan',
-
-				states: {
-					uninitialized: {
-						"*": function() {
-							this.deferUntilTransition();
-						}
-					},
-					getScan: {
-
-						_onEnter: function() {
-							self.terminalInterface.newRequest(scanRequest);
-						},
-
-						'inputA': function() {
-							this.transition('getQuantity');
-						},
-
-						'inputB': function() {
-
-							startActionMachine(self.uiChoice);
-						},
-
-						'reset': function() {
-							startUiMachine();
-						}
-					},
-					getQuantity: {
-
-						_onEnter: function() {
-							var request = qtools.clone(comboRequest);
-							request.prompt = "Auto-Subtract<!newLine!>Quantity";
-							self.terminalInterface.newRequest(request);
-							self.dataModel.type = 'b'; //this is auto-subtract
-						},
-
-						'inputA': function() {
-							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
-						},
-
-						'success': function() { //autoSave has save success here
-							self.terminalInterface.newRequest(successSaveRequest);
-							setTimeout(function() {
-								this.transition('getScan');
-								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
-							}.bind(this), 3000);
-						},
-
-						'error': function() {
-							self.terminalInterface.newRequest(errorSaveRequest);
-							setTimeout(function() {
-								this.transition('getScan');
-							}.bind(this), 3000);
-						},
-
-						'reset': function() {
-							restartScanning();
-						}
-					},
-					reset: function() {
-						restartScanning();
-					}
-				}
-			};
+		case 'autoAddEntry':
+			machineSpecs = autoMachine;
 			firstStep = 'getScan';
+			getDefaultType=bindDefaultType('a');
+			self.terminalInterface.screenStructure.echoRow=10;
+			self.terminalInterface.initialText = getScreenBackground('addModeScreen.vt100');
+			break;
 
+		case 'autoSubtractEntry':
+			machineSpecs = autoMachine;
+			firstStep = 'getScan';
+			getDefaultType=bindDefaultType('b');
+			self.terminalInterface.screenStructure.echoRow=10;
+			self.terminalInterface.initialText = getScreenBackground('subtractModeScreen.vt100');
+			break;
+
+		case 'autoReplaceEntry':
+			machineSpecs = autoMachine;
+			firstStep = 'getScan';
+			getDefaultType=bindDefaultType('c');
+			self.terminalInterface.screenStructure.echoRow=10;
+			self.terminalInterface.initialText = getScreenBackground('replaceModeScreen.vt100');
 			break;
 
 	}
@@ -379,9 +405,7 @@ var startActionMachine = function(uiChoice) {
 var chooseUiMachine = {
 
 	initialize: function(options) {
-console.log("\n=-=============   chooseUiMachine  =========================\n");
-
-
+			self.terminalInterface.screenStructure.echoRow=18;
 			self.terminalInterface.initialText = getScreenBackground('startScreen.vt100');
 			},
 
@@ -396,7 +420,6 @@ console.log("\n=-=============   chooseUiMachine  =========================\n");
 		chooseUi: {
 
 			_onEnter: function() {
-
 				self.terminalInterface.newRequest(chooseUiRequest);
 			},
 
@@ -431,7 +454,7 @@ var terminalInit = {
 	screenStructure: {
 		promptRow: 5,
 		subStatusRow: 16,
-		echoRow: 10,
+		echoRow: 18, //default, overwritten based on screen
 		echoLastRow: 15,
 		leftCol: 3
 	},
