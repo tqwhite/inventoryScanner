@@ -7,6 +7,10 @@ export PATH=$PATH:"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )":
 scanTestInfo="\
 ----------------------------------\n\
 COMMANDS\n\n\
+startScanners - Start Both Scanners\n\
+\n\
+stopScanners - Stop both scanners\n\
+\n\
 start1337 - start Inventory Scanner server  on port 1337\n\
 \n\
 start1338 - start Inventory Scanner server  on port 1338\n\
