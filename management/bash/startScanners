@@ -5,7 +5,7 @@ echo "--------";
 echo -e "\n\n===== Stopping Inventor Scanner Servers ==================== \n";
 echo -e "(no message == successful stop; error message means it probably wasn't running anyway)\n"
 
-forever stopall --silent  > /dev/null
+forever stopall --silent 
 
 echo -e "\n\n===== Starting Inventor Scanner Servers ==================== \n";
 
