@@ -9,6 +9,8 @@ scanTestInfo="\
 COMMANDS\n\n\
 startScanners - Start Both Scanners\n\
 \n\
+checkScanners - See if scanner servers are running\n\
+\n\
 stopScanners - Stop both scanners\n\
 \n\
 start1337 - start Inventory Scanner server  on port 1337\n\

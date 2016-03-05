@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo -e "\n\n===== Check Inventory Server  ==================== ";
+
+forever list
+
+echo -e "\n\n========================================== \n";
+
