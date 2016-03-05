@@ -29,7 +29,7 @@ global.config = config;
 
 var commandLineParms = qtools.parseCommandLine();
 
-var port = commandLineParms.values.port || '1337';
+var port = commandLineParms.values.port ||process.env.SCANNER_PORT || '1337';
 
 global.terminalId = port;
 

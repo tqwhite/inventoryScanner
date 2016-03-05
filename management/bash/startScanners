@@ -1,0 +1,38 @@
+#!/bin/bash
+echo $scanProjectBase;
+echo "--------";
+
+echo -e "\n\n===== Stopping Mail Zoom Server (no message == successful stop) ==================== \n";
+
+forever stopall --silent  > /dev/null
+
+echo -e "\n\n===== Starting Inventor Scanner Servers ==================== \n";
+
+export SCANNER_PORT=1337
+
+forever start \
+--watch \
+--watchDirectory ${scanProjectBase}/system \
+--spinSleepTime 10000 \
+--append \
+-l ${scanProjectBase}/system/management/logs/foreverServer.log \
+${scanProjectBase}/system/scanServer/scanServer.js 
+
+echo -e "Scanner started for port $SCANNER_PORT";
+
+export SCANNER_PORT=1338
+
+forever start \
+--watch \
+--watchDirectory ${scanProjectBase}/system \
+--spinSleepTime 10000 \
+--append \
+-l ${scanProjectBase}/system/management/logs/foreverServer.log \
+${scanProjectBase}/system/scanServer/scanServer.js 
+
+echo -e "Scanner started for port $SCANNER_PORT";
+
+echo -e "\n\n========================================== \n";
+
+tail -f ${scanProjectBase}/system/management/logs/foreverServer.log
+

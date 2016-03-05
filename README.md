@@ -1,5 +1,13 @@
 If you have trouble, you can call TQ White II at 708-763-0100.
 
+TO check installation dependencies, type each of these into a terminal command line:
+
+git --version
+node --version
+forever --version
+
+If any of these give errors, contact TQ for extra help.
+
 
 The paths with PATH_TO need to be adjusted to point to the directory holding the inventoryScanner application.
 
