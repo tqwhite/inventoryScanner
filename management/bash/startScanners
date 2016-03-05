@@ -38,6 +38,7 @@ ${scanProjectBase}/system/scanServer/scanServer.js
 echo -e "Scanner started for port $SCANNER_PORT";
 
 echo -e "\n\n========================================== \n";
+echo -e "type cmd-period to get the command prompt\n"
 
 tail -f ${scanProjectBase}/system/management/logs/foreverServer.log
 
