@@ -100,7 +100,7 @@ var moduleFunction = function(args) {
 	journal = new journal();
 	helixConnector = new helixConnector({
 		helixAccessParms:self.helixAccessParms,
-		authGoodies: authGoodies
+		noValidationNeeded: true
 	});
 
 	return this;
