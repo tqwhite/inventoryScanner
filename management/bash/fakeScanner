@@ -2,6 +2,29 @@
 
 clear;
 
-echo -e '\n\nremember to enter escape and mode character and that you have to paste code0000000edoc\n\n'; 
+echo -e "
+\033[25;0f\033[1;34m\033[7m
+FAKE SCANNER STARTUP --------------\033[0m\033[1;34m
+
+First set the mode: 
+
+enter command mode: 
+1) type escape, 
+2) type '^]' (control-right-brace)
+
+then
+1) type 'mode character' 
+
+Not much changes but then the scanner is ready to use. 
+
+Choose User mode (a, b, c or enter).
+
+Imitate a scan by pasting 'code0000000edoc'
+
+\033[7m-----------------------------------
+\033[0m\033[1;0m
+"; 
+
+read -p "Ready to start the scanner? [enter]" -n 1 -r
 
 telnet localhost 1337

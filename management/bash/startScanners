@@ -23,7 +23,25 @@ ${scanProjectBase}/system/scanServer/scanServer.js
 
 echo -e "Scanner started for port $SCANNER_PORT";
 
+#----------------------------------------
+
 export SCANNER_PORT=1338
+
+echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
+
+forever start \
+--watch \
+--watchDirectory ${scanProjectBase}/system \
+--spinSleepTime 10000 \
+--append \
+-l ${scanProjectBase}/system/management/logs/foreverServer.log \
+${scanProjectBase}/system/scanServer/scanServer.js 
+
+echo -e "Scanner started for port $SCANNER_PORT";
+
+#----------------------------------------
+
+export SCANNER_PORT=1339
 
 echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
 

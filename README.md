@@ -23,14 +23,16 @@ INVENTORY SCANNER ALIASES ETC
 ----------------------------------
 COMMANDS
 
-scanserve - start Inventory Scanner server
+startScanners - start Inventory Scanner server(s)
 
-fakescanner - use terminal as a pretend scanner for testing
+fakescanner - use terminal as a pretend scanner for testing (requires telnet)
 ----------------------------------
 
-4) The type scanserver. It should say
+4) The type startScanners. It should say
 
 	"inventoryScanner listening on port 1337"
+	
+	perhaps several times with different port numbers if there is more than one scanner.
 
 5) You will probably have to do something to your network to let the scanner talk on port 1337
 (and any other ports if there is more than one scanner).
@@ -40,7 +42,7 @@ fakescanner - use terminal as a pretend scanner for testing
 	telnet localhost 1337
 
 after telnet starts (ignore the 'connection refused' message), you need to enter 
-the escape ^] (control-left-brace) to get a prompt,
+the escape ^] (control-right-brace) to get a prompt,
 
 then type...
 

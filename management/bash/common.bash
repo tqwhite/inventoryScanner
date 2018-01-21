@@ -22,6 +22,9 @@ fakescanner - use terminal as a pretend scanner for testing (sample code 'code99
 updateps - get the latest code (if pscommit was done elsewhere)\n\
 \n\
 scanrepo - cd to the repository\n\
+\n\
+runpsDevScanner - run a single scanner on 1337 for testing\n\
+\n\
 ----------------------------------\n\
 ";
 

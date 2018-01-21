@@ -1,0 +1,11 @@
+#!/bin/bash
+echo $scanProjectBase;
+
+echo -e "\n\n===== Starting Inventor Scanner Servers ==================== \n";
+
+export SCANNER_PORT=1337
+
+echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
+
+nodemon ${scanProjectBase}/system/scanServer/scanServer.js
+
