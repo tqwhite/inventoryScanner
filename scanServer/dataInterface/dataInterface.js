@@ -74,35 +74,12 @@ var moduleFunction = function(args) {
 				}
 			},
 
-			getInventory: {
-				processName: 'saveOneWithProcess',
+			inventoryQtyOut: {
+				processName: 'retrieveRecords',
 				schema: {
 					debug: false,
 					skipPoolUser: true,
 					publicEndpoint: true, //this prevents JWT processing
-					relation: '_inertProcess',
-					view: 'enterABC',
-					fieldSequenceList: [
-						'scanCode',
-						'quantity',
-						'type',
-						'createDateTime',
-						'terminalId',
-						'refId'
-					],
-					mapping: {
-						terminalId: function() {
-							return global.terminalId;
-						},
-						refId: 'refId',
-						createDateTime: 'helixDateTimeNow'
-					}
-				}
-			},
-
-			inventoryQtyOut: {
-				processName: 'retrieveRecords',
-				schema: {
 					relation: '_userPoolGlobal',
 					view: 'inventoryQtyOut',
 					testViewName: '',
