@@ -83,7 +83,7 @@ var moduleFunction = function(args) {
 					relation: '_userPoolGlobal',
 					view: 'inventoryQtyOut',
 					testViewName: '',
-					fieldSequenceList: ['lk qty-inv', 
+					fieldSequenceList: ['inStockAmount', 
 						'scanCode',
 						'quantity',
 						'type'],
