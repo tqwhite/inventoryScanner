@@ -77,7 +77,7 @@ var moduleFunction = function(args) {
 			inventoryQtyOut: {
 				processName: 'retrieveRecords',
 				schema: {
-					debug: false,
+					debug: true,
 					skipPoolUser: true,
 					publicEndpoint: true, //this prevents JWT processing
 					relation: '_userPoolGlobal',
@@ -95,6 +95,7 @@ var moduleFunction = function(args) {
 					criterionSchemaName: 'inventoryCriterion',
 					criterion: {
 						data:{},
+						debug: true,
 						relation: '_inertProcessScanServer',
 						view: 'inventoryCriterion',
 						testViewName: '',
