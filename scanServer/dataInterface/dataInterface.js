@@ -141,9 +141,6 @@ var moduleFunction = function(args) {
 				const schemaProcessInfo = getQueryParms(item);
 				qtools.putSurePath(schemaProcessInfo, 'schema.criterion.data', inData);
 
-console.dir({"schemaProcessInfo [dataInterface.js.moduleFunction]":schemaProcessInfo});
-
-
 				helixConnector.process(schemaProcessInfo.processName, {
 					schema: schemaProcessInfo.schema,
 					debug: false,

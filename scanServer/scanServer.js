@@ -174,10 +174,10 @@ console.dir({"saveDataResult [scanServer.js.constructSubStatus]":saveDataResult}
 	var len=dataModel.scanCode.length,
 	showCode='...'+dataModel.scanCode.substring(len-4, len);
 	
-	if (saveDataResult && saveDataResult.getInventory && saveDataResult.getInventory.length){
-console.log("saveDataResult.getInventory[0].helixId="+saveDataResult.getInventory[0].helixId+" [scanServer.js.constructSubStatus]");
+	if (saveDataResult && saveDataResult.inventoryQtyOut && saveDataResult.inventoryQtyOut.length){
+console.log("saveDataResult.inventoryQtyOut[0].helixId="+saveDataResult.inventoryQtyOut[0].helixId+" [scanServer.js.constructSubStatus]");
 
-		var inventory="<!newLine!>In Stock: "+saveDataResult.getInventory[0].helixId;
+		var inventory="<!newLine!>In Stock: "+saveDataResult.inventoryQtyOut[0].helixId;
 	}
 	else {
 		var inventory='';
@@ -329,7 +329,7 @@ var startActionMachine = function(uiChoice) {
 						},
 
 						'inputA': function() {
-							self.dataInterface.save(['barcodeEntry', 'inventoryQtyOut'], self.dataModel, saveCallback.bind(this));
+							self.dataInterface.save(['barcodeEntry', 'getInventory'], self.dataModel, saveCallback.bind(this));
 						},
 
 						'success': function(saveDataResult) { //autoSave has save success here
@@ -356,7 +356,7 @@ var startActionMachine = function(uiChoice) {
 
 						_onEnter: function() {
 							self.terminalInterface.newRequest(waitForSaveRequest);
-							self.dataInterface.save(['barcodeEntry', 'inventoryQtyOut'], self.dataModel, saveCallback.bind(this));
+							self.dataInterface.save(['barcodeEntry', 'getInventory'], self.dataModel, saveCallback.bind(this));
 						},
 
 						'success': function(saveDataResult) {
