@@ -109,7 +109,6 @@ var moduleFunction = function(args) {
 						emptyRecordsAllowed: true,
 						private: false
 					},
-					debug: 'false',
 					emptyRecordsAllowed: true,
 					private: false
 				}
