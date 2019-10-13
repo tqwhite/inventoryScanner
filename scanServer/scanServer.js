@@ -172,17 +172,14 @@ console.dir({"saveDataResult [scanServer.js.constructSubStatus]":saveDataResult}
 
 
 	var len=dataModel.scanCode.length,
-	showCode='...'+dataModel.scanCode.substring(len-4, len);
+	showCode=' – '+dataModel.scanCode.substring(len-4, len);
 	
 	if (saveDataResult && saveDataResult.inventoryQtyOut && saveDataResult.inventoryQtyOut.length){
-console.log("saveDataResult.inventoryQtyOut[0].helixId="+saveDataResult.inventoryQtyOut[0].inStockAmount+" [scanServer.js.constructSubStatus]");
-
 		var inventory="<!newLine!>In Stock: "+saveDataResult.inventoryQtyOut[0].inStockAmount;
 	}
 	else {
 		var inventory='';
 	}
-	
 	return "Prev: "+dataModel.type+' '+dataModel.quantity+" "+showCode+inventory;
 };
 
