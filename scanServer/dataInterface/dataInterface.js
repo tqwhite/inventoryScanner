@@ -109,6 +109,7 @@ var moduleFunction = function(args) {
 						emptyRecordsAllowed: true,
 						private: false
 					},
+					debug: 'false',
 					emptyRecordsAllowed: true,
 					private: false
 				}
@@ -140,11 +141,15 @@ var moduleFunction = function(args) {
 				const schemaProcessInfo = getQueryParms(item);
 				qtools.putSurePath(schemaProcessInfo, 'schema.criterion.data', inData);
 
+				const criterion=schemaProcessInfo.criterion?schemaProcessInfo.criterion:{};
+				criterion.data=inData;
+
 				helixConnector.process(schemaProcessInfo.processName, {
 					schema: schemaProcessInfo.schema,
 					debug: false,
 					inData: inData,
-					callback: localCallback
+					callback: localCallback,
+					criterion
 				});
 			});
 		});
