@@ -44,9 +44,14 @@ var moduleFunction = function(args) {
 
 
 	var getQueryParms = function(schemaName) {
+console.log("global.terminalId="+global.terminalId+" [dataInterface.js.schemata]");
+
 		var schemata = {
 
 			barcodeEntry: {
+				debug:false,
+				skipPoolUser:true,
+				publicEndpoint:true, //this prevents JWT processing
 				relation: '_inertProcess',
 				view: 'enterABC',
 				fieldSequenceList: [
@@ -85,8 +90,8 @@ var moduleFunction = function(args) {
 		}
 		
 		
-		helixConnector.process('saveOne', {
-			helixSchema: getQueryParms(schemaName),
+		helixConnector.process('saveOneWithProcess', {
+			schema: getQueryParms(schemaName),
 			debug: false,
 			inData: inData,
 			callback: localCallback

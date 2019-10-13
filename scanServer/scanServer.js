@@ -155,7 +155,7 @@ var restartScanning = function() {
 
 var saveCallback = function(err, data) {
 	if (!err) {
-		this.handle('success');
+		this.handle('success', data);
 	} else {
 
 		console.log(err.toString());
@@ -167,10 +167,18 @@ var resetModel = function() {
 	self.dataModel = {};
 }
 
-var constructSubStatus=function(dataModel){
+var constructSubStatus=function(dataModel, saveDataResult){
 	var len=dataModel.scanCode.length,
-	showCode='-'+dataModel.scanCode.substring(len-4, len);
-	return "(prev: "+dataModel.type+' '+dataModel.quantity+" "+showCode+")";
+	showCode='...'+dataModel.scanCode.substring(len-4, len);
+	
+	if (saveDataResult && saveDataResult.length){
+		var inventory="<!newLine!>In Stock: "+saveDataResult[0].helixId;
+	}
+	else {
+		var inventory='';
+	}
+	
+	return "Prev: "+dataModel.type+' '+dataModel.quantity+" "+showCode+inventory;
 };
 
 //MACHINA ====================================
@@ -233,11 +241,11 @@ var startActionMachine = function(uiChoice) {
 							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
 						},
 
-						'success': function() { //autoSave has save success here
+						'success': function(saveDataResult) { //autoSave has save success here
 							self.terminalInterface.newRequest(successSaveRequest);
 							setTimeout(function() {
 								this.transition('getScan');
-								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
+								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel, saveDataResult));
 							}.bind(this), 1000);
 						},
 
@@ -263,8 +271,8 @@ var startActionMachine = function(uiChoice) {
 			machineSpecs = {
 
 				initialize: function(options) {
-			self.terminalInterface.echoRow=10;
-			self.terminalInterface.initialText = getScreenBackground('generalEntry.vt100');
+					self.terminalInterface.echoRow=10;
+					self.terminalInterface.initialText = getScreenBackground('generalEntry.vt100');
 				},
 
 				initialState: 'getScan',
@@ -319,11 +327,11 @@ var startActionMachine = function(uiChoice) {
 							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
 						},
 
-						'success': function() { //autoSave has save success here
+						'success': function(saveDataResult) { //autoSave has save success here
 							self.terminalInterface.newRequest(successSaveRequest);
 							setTimeout(function() {
 								this.transition('getScan');
-								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel));
+								self.terminalInterface.writeSubStatus(constructSubStatus(self.dataModel, saveDataResult));
 							}.bind(this), 1000);
 						},
 
@@ -346,7 +354,7 @@ var startActionMachine = function(uiChoice) {
 							self.dataInterface.save('barcodeEntry', self.dataModel, saveCallback.bind(this));
 						},
 
-						'success': function() {
+						'success': function(saveDataResult) {
 							self.terminalInterface.newRequest(successSaveRequest);
 							setTimeout(function() {
 								this.transition('getScan');
@@ -453,9 +461,9 @@ var terminalInit = {
 	initialText: initialScreen,
 	screenStructure: {
 		promptRow: 5,
-		subStatusRow: 16,
+		subStatusRow: 15,
 		echoRow: 18, //default, overwritten based on screen
-		echoLastRow: 15,
+		echoLastRow: 14,
 		leftCol: 3
 	},
 	updateDataModelFunction: setUiChoice,
