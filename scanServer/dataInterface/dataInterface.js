@@ -95,7 +95,7 @@ var moduleFunction = function(args) {
 						relation: '_inertProcessScanServer',
 						view: 'inventoryCriterion',
 						testViewName: '',
-						fieldSequenceList: ['barcode'],
+						fieldSequenceList: ['scanCode'],
 						mapping: {},
 						separators: {
 							field: '\t',
