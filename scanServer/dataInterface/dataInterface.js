@@ -98,6 +98,40 @@ var moduleFunction = function(args) {
 						createDateTime: 'helixDateTimeNow'
 					}
 				}
+			},
+
+			inventoryQtyOut: {
+				processName: 'retrieveRecords',
+				schema: {
+					relation: '_userPoolGlobal',
+					view: 'inventoryQtyOut',
+					testViewName: '',
+					fieldSequenceList: ['lk qty-inv'],
+					mapping: {},
+					separators: {
+						field: '\t',
+						record: '``'
+					},
+					criterionSchemaName: 'inventoryCriterion',
+					criterion: {
+						data:{},
+						relation: '_inertProcessScanServer',
+						view: 'inventoryCriterion',
+						testViewName: '',
+						fieldSequenceList: ['barcode'],
+						mapping: {},
+						separators: {
+							field: '\t',
+							record: '``'
+						},
+						criterionSchemaName: '',
+						emptyRecordsAllowed: true,
+						private: false
+					},
+					debug: 'false',
+					emptyRecordsAllowed: true,
+					private: false
+				}
 			}
 		};
 
@@ -108,10 +142,8 @@ var moduleFunction = function(args) {
 	
 	this.save = (schemaNameList, inData, callback) => {
 		const taskList = new taskListPlus();
-		
-		
+
 		schemaNameList.forEach(item => {
-			
 			taskList.push((args, next) => {
 				journal.add(inData, 'all');
 				var localCallback = function(err, data) {
@@ -134,10 +166,8 @@ var moduleFunction = function(args) {
 					callback: localCallback
 				});
 			});
-			
-			
 		});
-		
+
 		// 	taskList.push((args, next) => {
 		// 		const localCallback = (err, localResult2) => {
 		// 			args.localResult2 = localResult2;
@@ -145,14 +175,14 @@ var moduleFunction = function(args) {
 		// 		};
 		// 		localCallback('', 'localResult2');
 		// 	}, ['localResult1']);
-		
+
 		const initialData = {};
 		pipeRunner(taskList.getList(), initialData, (err, finalResult) => {
 			//console.dir({ 'finalResult [asyncPipe Boilerplate.]': finalResult });
 			callback(err, finalResult);
 		});
-	}; 
-	 //INITIALIZATION ====================================
+	};
+	//INITIALIZATION ====================================
 
 	journal = new journal();
 	helixConnector = new helixConnector({

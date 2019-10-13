@@ -243,7 +243,7 @@ var startActionMachine = function(uiChoice) {
 						},
 
 						'inputA': function() {
-							self.dataInterface.save(['barcodeEntry', 'getInventory'], self.dataModel, saveCallback.bind(this));
+							self.dataInterface.save(['barcodeEntry', 'inventoryQtyOut'], self.dataModel, saveCallback.bind(this));
 						},
 
 						'success': function(saveDataResult) { //autoSave has save success here
@@ -329,7 +329,7 @@ var startActionMachine = function(uiChoice) {
 						},
 
 						'inputA': function() {
-							self.dataInterface.save(['barcodeEntry', 'getInventory'], self.dataModel, saveCallback.bind(this));
+							self.dataInterface.save(['barcodeEntry', 'inventoryQtyOut'], self.dataModel, saveCallback.bind(this));
 						},
 
 						'success': function(saveDataResult) { //autoSave has save success here
@@ -356,7 +356,7 @@ var startActionMachine = function(uiChoice) {
 
 						_onEnter: function() {
 							self.terminalInterface.newRequest(waitForSaveRequest);
-							self.dataInterface.save(['barcodeEntry', 'getInventory'], self.dataModel, saveCallback.bind(this));
+							self.dataInterface.save(['barcodeEntry', 'inventoryQtyOut'], self.dataModel, saveCallback.bind(this));
 						},
 
 						'success': function(saveDataResult) {
