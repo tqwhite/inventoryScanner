@@ -77,7 +77,7 @@ var moduleFunction = function(args) {
 			inventoryQtyOut: {
 				processName: 'retrieveRecords',
 				schema: {
-					debug: true,
+					debug: false,
 					skipPoolUser: false,
 					publicEndpoint: true, //this prevents JWT processing
 					relation: '_userPoolGlobal',
