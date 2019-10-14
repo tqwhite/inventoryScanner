@@ -168,9 +168,6 @@ var resetModel = function() {
 }
 
 var constructSubStatus=function(dataModel, saveDataResult){
-console.dir({"saveDataResult [scanServer.js.constructSubStatus]":saveDataResult});
-
-
 	var len=dataModel.scanCode.length,
 	showCode=' – '+dataModel.scanCode.substring(len-4, len);
 	
