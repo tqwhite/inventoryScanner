@@ -246,15 +246,6 @@ var moduleFunction = function(args) {
 				},
 				scan: function() {
 					var returnData = self.currentInString.match(/^code(.*?)edoc/, self.currentInString);
-console.dir({"returnData [terminalInterface.js.scan]":returnData});
-
-
-					if (!returnData){
-						returnData=self.currentInString.match(/^\d\d\d+/, self.currentInString);
-console.dir({"returnDatax [terminalInterface.js.scan]":returnData});
-
-
-					}
 					self.workingResultString = returnData[1];
 					updateEcho(self.workingResultString);
 					this.handle('enter');
@@ -415,14 +406,6 @@ console.dir({"returnDatax [terminalInterface.js.scan]":returnData});
 		var inData = self.currentInString,
 			outString;
 		if (inData.match(/^code.*?edoc/)) {
-console.dir({"inData [terminalInterface.js.detectSpecialCharStrings]":inData});
-
-
-			outString = 'scan';
-		} else if (inData.match(/^(\d\d\d+)/)) {
-console.dir({"inDataX [terminalInterface.js.detectSpecialCharStrings]":inData});
-
-
 			outString = 'scan';
 		} else if (inData.match(/\d/)) {
 			outString = 'number';
