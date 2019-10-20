@@ -406,7 +406,9 @@ var moduleFunction = function(args) {
 		var inData = self.currentInString,
 			outString;
 
-console.log("inData="+inData+" [terminalInterface.js.detectSpecialCharStrings]");
+console.dir({"inData [terminalInterface.js.detectSpecialCharStrings]":inData});
+
+
 
 		if (inData.match(/^code.*?edoc/)) {
 			outString = 'scan';
@@ -459,7 +461,9 @@ console.log("inData="+inData+" [terminalInterface.js.detectSpecialCharStrings]")
 
 	var scannerDataReceivingCallback = function(inData) {
 		self.currentInString = inData.toString();
-console.log("self.currentInString="+self.currentInString+" [terminalInterface.js.scannerDataReceivingCallback]");
+console.dir({"self.currentInString [terminalInterface.js.scannerDataReceivingCallback]":self.currentInString});
+
+
 
 		var charType = detectSpecialCharStrings();
 		stateMachine.handle(charType);
