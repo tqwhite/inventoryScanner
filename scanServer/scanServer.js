@@ -313,7 +313,14 @@ var startActionMachine = function(uiChoice) {
 					getQuantity: {
 
 						_onEnter: function() {
-							self.terminalInterface.newRequest(quantityRequest);
+							self.dataInterface.save(['inventoryQtyOut'], self.dataModel, (err, result)=>{
+								const inStockAmount=qtools.getSurePath(result, 'inventoryQtyOut[0].inStockAmount', 'not found').replace(/\`/,'');
+								self.terminalInterface.writeSubStatus(constructInventoryStatus(self.dataModel, inStockAmount));
+							});
+							var request = qtools.clone(comboRequest);
+							request.prompt = "Enter Quantity";
+							self.terminalInterface.newRequest(request);
+							self.dataModel.type = getDefaultType(); //this is auto-subtract
 						},
 
 						'inputA': function() {
@@ -464,7 +471,7 @@ self.dataModel = {};
 var terminalInit = {
 	port: port,
 	ipAddress: '0.0.0.0',
-	appName: 'Inventory Scanner v2.0',
+	appName: 'Inventory Scanner v2.1',
 	initialText: initialScreen,
 	screenStructure: {
 		promptRow: 5,
