@@ -459,6 +459,8 @@ console.log("inData="+inData+" [terminalInterface.js.detectSpecialCharStrings]")
 
 	var scannerDataReceivingCallback = function(inData) {
 		self.currentInString = inData.toString();
+console.log("self.currentInString="+self.currentInString+" [terminalInterface.js.scannerDataReceivingCallback]");
+
 		var charType = detectSpecialCharStrings();
 		stateMachine.handle(charType);
 	}
