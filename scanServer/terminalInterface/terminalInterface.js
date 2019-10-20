@@ -246,6 +246,9 @@ var moduleFunction = function(args) {
 				},
 				scan: function() {
 					var returnData = self.currentInString.match(/^code(.*?)edoc/, self.currentInString);
+					if (!returnData){
+						returnData=self.currentInString.match(/^\d\d\d+/, self.currentInString);
+					}
 					self.workingResultString = returnData[1];
 					updateEcho(self.workingResultString);
 					this.handle('enter');
@@ -405,12 +408,9 @@ var moduleFunction = function(args) {
 	var detectSpecialCharStrings = function() {
 		var inData = self.currentInString,
 			outString;
-
-console.dir({"inData [terminalInterface.js.detectSpecialCharStrings]":inData});
-
-
-
 		if (inData.match(/^code.*?edoc/)) {
+			outString = 'scan';
+		} else if (inData.match(/^\d\d\d+/)) {
 			outString = 'scan';
 		} else if (inData.match(/\d/)) {
 			outString = 'number';
@@ -461,10 +461,6 @@ console.dir({"inData [terminalInterface.js.detectSpecialCharStrings]":inData});
 
 	var scannerDataReceivingCallback = function(inData) {
 		self.currentInString = inData.toString();
-console.dir({"self.currentInString [terminalInterface.js.scannerDataReceivingCallback]":self.currentInString});
-
-
-
 		var charType = detectSpecialCharStrings();
 		stateMachine.handle(charType);
 	}
