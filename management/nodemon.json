@@ -1,0 +1,9 @@
+{
+	"watch":[
+		"/Users/tqwhite/Documents/webdev/lenny/panagon/projects/inventoryScanner/system",
+		"/Users/tqwhite/Documents/webdev/lenny/panagon/projects/inventoryScanner/config",
+		"/Users/tqwhite/node_modules"	],
+	"ext": ".js .html .ini .txt .json .css .stache .less .applescript",
+	"ignore":["*/TESTOUTPUT/*", "*/signals/*", "rsync.log", "lastRsyncUpdate.js", "autoNodemonTmpData"],
+	"ignoreRoot": ["signals", ".git"]
+}

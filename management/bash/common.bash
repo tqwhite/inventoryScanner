@@ -21,7 +21,7 @@ fakescanner - use terminal as a pretend scanner for testing (sample code 'code99
 \n\
 updateps - get the latest code (if pscommit was done elsewhere)\n\
 \n\
-scanrepo - cd to the repository\n\
+psrepo - cd to the repository\n\
 \n\
 runpsDevScanner - run a single scanner on 1337 for testing\n\
 \n\
@@ -63,7 +63,7 @@ echo -e "$scanTestInfo";
 alias lpInfo=' echo -e "$scanTestInfo"'
 
 # === UTILITY AND NAVIGATION aliases ===========================================
-alias scanrepo="cd $projectBase/system; pwd; git status;";
+alias psrepo="cd $projectBase/system; pwd; git status;";
 
 # === BASIC OPERATION aliases/variables ===========================================
 alias scanserve="clear; nodemon -w $projectBase $projectBase/system/scanServer/scanServer.js --port=1337";

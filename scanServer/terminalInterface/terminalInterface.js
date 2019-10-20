@@ -108,6 +108,10 @@ var moduleFunction = function(args) {
 		return escChar + 'E' + escChar + 'E' + escPrefix + (self.screenStructure.leftCol - 1) + 'C';
 	}
 
+	var nextLinePositionString = function() {
+		return escChar + 'E' + escPrefix + (self.screenStructure.leftCol - 1) + 'C';
+	}
+
 	var writeToDevice = function(writeString) {
 		self.socket.write(writeString);
 	}
@@ -433,8 +437,10 @@ var moduleFunction = function(args) {
 	this.workingResultString = '';
 
 	this.writeSubStatus = function(writeString) {
-		if (writeString.match('<!newLine!>')) {
-			writeString = writeString.replace(/<!newLine!>/g, newLinePositionString());
+		if (writeString.match(/(<!newLine!>|<!nextLine!>)/)) {
+			writeString = writeString
+				.replace(/<!newLine!>/g, newLinePositionString())
+				.replace(/<!nextLine!>/g, nextLinePositionString());
 		} else {
 			writeString += newLinePositionString();
 		}

@@ -7,5 +7,10 @@ export SCANNER_PORT=1337
 
 echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
 
-nodemon ${scanProjectBase}/system/scanServer/scanServer.js
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+pushd $scanProjectBase/system/ > /dev/null
+nodemon -V  --config $SCRIPT_DIR/nodemon.json  \
+ ${scanProjectBase}/system/scanServer/scanServer.js
+popd > /dev/null
