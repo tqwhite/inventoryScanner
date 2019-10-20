@@ -406,6 +406,8 @@ var moduleFunction = function(args) {
 		var inData = self.currentInString,
 			outString;
 
+console.log("inData="+inData+" [terminalInterface.js.detectSpecialCharStrings]");
+
 		if (inData.match(/^code.*?edoc/)) {
 			outString = 'scan';
 		} else if (inData.match(/\d/)) {

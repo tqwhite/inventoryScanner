@@ -11,12 +11,12 @@ echo -e "\n\n===== Starting Inventor Scanner Servers ==================== \n";
 
 export SCANNER_PORT=1337
 
-echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
+echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/logs/foreverServer.log;
 
 forever start \
 --spinSleepTime 10000 \
 --append \
--l ${scanProjectBase}/system/management/logs/foreverServer.log \
+-l ${scanProjectBase}/logs/foreverServer.log \
 ${scanProjectBase}/system/scanServer/scanServer.js 
 
 echo -e "Scanner started for port $SCANNER_PORT";
@@ -25,12 +25,12 @@ echo -e "Scanner started for port $SCANNER_PORT";
 
 export SCANNER_PORT=1338
 
-echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
+echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/logs/foreverServer.log;
 
 forever start \
 --spinSleepTime 10000 \
 --append \
--l ${scanProjectBase}/system/management/logs/foreverServer.log \
+-l ${scanProjectBase}/logs/foreverServer.log \
 ${scanProjectBase}/system/scanServer/scanServer.js 
 
 echo -e "Scanner started for port $SCANNER_PORT";
@@ -39,12 +39,12 @@ echo -e "Scanner started for port $SCANNER_PORT";
 
 export SCANNER_PORT=1339
 
-echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/system/management/logs/foreverServer.log;
+echo -e "\n\nStarting scanner $SCANNER_PORT\n\n" >> ${scanProjectBase}/logs/foreverServer.log;
 
 forever start \
 --spinSleepTime 10000 \
 --append \
--l ${scanProjectBase}/system/management/logs/foreverServer.log \
+-l ${scanProjectBase}/logs/foreverServer.log \
 ${scanProjectBase}/system/scanServer/scanServer.js 
 
 echo -e "Scanner started for port $SCANNER_PORT";
@@ -52,5 +52,5 @@ echo -e "Scanner started for port $SCANNER_PORT";
 echo -e "\n\n========================================== \n";
 echo -e "type cmd-period to get the command prompt\n"
 
-tail -f ${scanProjectBase}/system/management/logs/foreverServer.log
+tail -f ${scanProjectBase}/logs/foreverServer.log
 
