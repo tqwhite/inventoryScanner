@@ -313,14 +313,7 @@ var startActionMachine = function(uiChoice) {
 					getQuantity: {
 
 						_onEnter: function() {
-							self.dataInterface.save(['inventoryQtyOut'], self.dataModel, (err, result)=>{
-								const inStockAmount=qtools.getSurePath(result, 'inventoryQtyOut[0].inStockAmount', 'not found').replace(/\`/,'');
-								self.terminalInterface.writeSubStatus(constructInventoryStatus(self.dataModel, inStockAmount));
-							});
-							var request = qtools.clone(comboRequest);
-							request.prompt = "Enter Quantity";
-							self.terminalInterface.newRequest(request);
-							self.dataModel.type = getDefaultType(); //this is auto-subtract
+							self.terminalInterface.newRequest(quantityRequest);
 						},
 
 						'inputA': function() {
