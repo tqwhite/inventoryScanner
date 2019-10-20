@@ -419,7 +419,7 @@ console.dir({"inData [terminalInterface.js.detectSpecialCharStrings]":inData});
 
 
 			outString = 'scan';
-		} else if (inData.match(/^\d\d\d+/)) {
+		} else if (inData.match(/^(\d\d\d+)/)) {
 console.dir({"inDataX [terminalInterface.js.detectSpecialCharStrings]":inData});
 
 
