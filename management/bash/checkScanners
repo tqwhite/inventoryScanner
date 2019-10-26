@@ -1,8 +1,10 @@
 #!/bin/bash
 
-echo -e "\n\n===== Check Inventory Server  ==================== ";
+echo -e "\n\n===== Check Inventory Server  ==================== 
 
 If nothing shows below, the scanners are not running.
+
+";
 
 launchctl list | grep scan
 
