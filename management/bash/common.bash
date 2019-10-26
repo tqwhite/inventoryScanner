@@ -4,22 +4,32 @@ echo "INVENTORY SCANNER ALIASES ETC";
 #include other executable scripts in this directory  ================================
 export PATH=$PATH:"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )": 
 
-scanTestInfo="\
-----------------------------------\n\
-COMMANDS\n\n\
-startScanners - Start Both Scanners\n\
-\n\
-stopScanners - Stop both scanners\n\
-\n\
-checkScanners - See if scanner servers are running\n\
-\n\
-fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc')\n\
-\n\
-updateps - get the latest code (if pscommit was done elsewhere)\n\
-\n\
-psrepo - cd to the repository\n\
-\n\
-----------------------------------\n\
+scanTestInfo=" 
+----------------------------------
+COMMANDS 
+
+startScanners - Start all Scanners 
+ 
+stopScanners - Stop all scanners 
+ 
+checkScanners - See if scanner servers are running 
+
+-------------------
+Current Status:
+";
+launchctl list | grep scan
+echo -e "
+
+(if nothing shown above, scanners are not running.)
+-------------------
+ 
+fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc') 
+ 
+updateps - get the latest code (if pscommit was done elsewhere) 
+ 
+psrepo - cd to the repository 
+ 
+---------------------------------- 
 ";
 
 # point at this project ================================
