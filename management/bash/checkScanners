@@ -8,5 +8,10 @@ If nothing shows below, the scanners are not running.
 
 launchctl list | grep scan
 
-echo -e "\n\n========================================== \n";
+echo -e "
+
+(use startAllScanners to start them)
+==========================================
+
+";
 
