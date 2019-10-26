@@ -489,6 +489,7 @@ self.dataInterface = new dataInterface({
 const anybar = require('anybar');
 anybar('green');
 process.on('SIGTERM', () => {
+	console.log(`shutting down server ${terminalInterface.port}`);
 	anybar('red');
 });
 
