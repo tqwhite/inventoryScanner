@@ -43,7 +43,7 @@ psrepo - cd to the repository
 
 alias psLog="tail -f -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.tech.log";
 alias psErrorLog="tail -f -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log";
-alias psErrorLog="tail -f -n 5000 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log | grep ECONNRESET";
+alias psEconnProblemLog="tail -f -n 5000 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log | grep ECONNRESET";
 
 # point at this project ================================
 projectBase=$scanProjectBase;
