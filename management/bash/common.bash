@@ -29,6 +29,8 @@ echo -e "
 psLog - see scanServer tech log files
 
 psErrorLog - see scanServer error log files
+
+psEconnProblemLog - only display ECONNRESET errors
  
 fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc') 
  
@@ -41,6 +43,7 @@ psrepo - cd to the repository
 
 alias psLog="tail -f -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.tech.log";
 alias psErrorLog="tail -f -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log";
+alias psErrorLog="tail -f -n 5000 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log | grep ECONNRESET";
 
 # point at this project ================================
 projectBase=$scanProjectBase;
