@@ -485,11 +485,14 @@ self.terminalInterface = new terminalInterface(terminalInit);
 self.dataInterface = new dataInterface({
 	helixAccessParms: global.config.getHelixParms()
 });
+
 const anybar = require('anybar');
- 
-console.dir({"anybar [scanServer.js.]":anybar});
+anybar('green');
+process.on('SIGTERM', () => {
+	anybar('red');
+});
 
 
-anybar('purple');
+	
 //END  ============================================================
 
