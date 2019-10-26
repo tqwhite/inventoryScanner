@@ -39,7 +39,7 @@ var chooseUiRequest = {
 	type: 'chooseUi',
 	dataModelPropertyName: 'uiChoice',
 	replyToInput: 'inputB',
-	prompt: 'Choose User Mode<!newLine!><!newLine!> a: Auto Add<!newLine!> b: Auto Subtract<!newLine!> c: Auto Replace<!newLine!>enter: Manual Mode<!newLine!>'
+	prompt: 'Choose User Mode<!newLine!><!newLine!> a: Add<!newLine!> b: Subtract<!newLine!> c: Replace<!newLine!>enter: Manual Mode<!newLine!>'
 };
 
 var scanRequest = {
