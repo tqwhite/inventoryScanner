@@ -487,7 +487,12 @@ self.dataInterface = new dataInterface({
 });
 
 const anybar = require('anybar');
-anybar('green');
+
+	setInterval(() => {
+		anybar('green');
+	}, 5000);
+
+
 process.on('SIGTERM', () => {
 	console.log(`shutting down server ${terminalInit.port}`);
 	anybar('red');
