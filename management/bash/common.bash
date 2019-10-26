@@ -4,7 +4,7 @@ echo "INVENTORY SCANNER ALIASES ETC";
 #include other executable scripts in this directory  ================================
 export PATH=$PATH:"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )": 
 
-scanTestInfo=" 
+echo -e  " 
 ----------------------------------
 COMMANDS 
 
@@ -16,8 +16,11 @@ checkScanners - See if scanner servers are running
 
 -------------------
 Current Status:
+
 ";
+
 launchctl list | grep scan
+
 echo -e "
 
 (if nothing shown above, scanners are not running.)
@@ -63,8 +66,6 @@ then
   echo -e "\nWARNING: $projectBase/config IS MISSING\n"
 fi
 
-echo -e "$scanTestInfo";
-alias lpInfo=' echo -e "$scanTestInfo"'
 
 # === UTILITY AND NAVIGATION aliases ===========================================
 alias psrepo="cd $projectBase/system; pwd; git status;";
