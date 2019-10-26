@@ -1,0 +1,7 @@
+#!/bin/bash
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1337.plist
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1338.plist
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1339.plist
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1340.plist
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1341.plist
+launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1342.plist
