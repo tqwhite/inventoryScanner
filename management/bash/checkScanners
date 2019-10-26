@@ -2,7 +2,9 @@
 
 echo -e "\n\n===== Check Inventory Server  ==================== ";
 
-forever list
+If nothing shows below, the scanners are not running.
+
+launchctl list | grep scan
 
 echo -e "\n\n========================================== \n";
 
