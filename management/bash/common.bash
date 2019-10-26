@@ -8,9 +8,9 @@ echo -e  "
 ----------------------------------
 COMMANDS 
 
-startScanners - Start all Scanners 
+startAllScanners - Start all Scanners 
  
-stopScanners - Stop all scanners 
+stopAllScanners - Stop all scanners 
  
 checkScanners - See if scanner servers are running 
 
