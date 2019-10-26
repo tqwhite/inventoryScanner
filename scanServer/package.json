@@ -16,7 +16,8 @@
     "url": "https://github.com/tqwhite/inventoryScanner/issues"
   },
   "homepage": "https://github.com/tqwhite/inventoryScanner",
-  "dependencies":{
-  	"helixConnector":"git://github.com/tqwhite/helixConnector"
+  "dependencies": {
+    "anybar": "^4.0.0",
+    "helixConnector": "git://github.com/tqwhite/helixConnector"
   }
 }

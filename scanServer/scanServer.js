@@ -485,6 +485,8 @@ self.terminalInterface = new terminalInterface(terminalInit);
 self.dataInterface = new dataInterface({
 	helixAccessParms: global.config.getHelixParms()
 });
-
+const anybar = require('anybar');
+ 
+anybar('purple');
 //END  ============================================================
 
