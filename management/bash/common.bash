@@ -25,6 +25,10 @@ echo -e "
 
 (if nothing shown above, scanners are not running.)
 -------------------
+
+psLog - see scanServer tech log files
+
+psErrorLog - see scanServer error log files
  
 fakescanner - use terminal as a pretend scanner for testing (sample code 'code9999edoc') 
  
@@ -34,6 +38,9 @@ psrepo - cd to the repository
  
 ---------------------------------- 
 ";
+
+alias psLog="tail -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.tech.log";
+alias psErrorLog="tail -n 200 /Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log";
 
 # point at this project ================================
 projectBase=$scanProjectBase;

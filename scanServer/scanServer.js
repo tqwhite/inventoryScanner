@@ -487,6 +487,9 @@ self.dataInterface = new dataInterface({
 });
 const anybar = require('anybar');
  
+console.dir({"anybar [scanServer.js.]":anybar});
+
+
 anybar('purple');
 //END  ============================================================
 
