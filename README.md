@@ -96,11 +96,19 @@ Use esc to back out and make sure it says it is saving the changes (should be au
 
 code
 
+UPDATE:
+
+For the AML handset, an extra character is required here. Instead type
+
+xcode
+
 then enter again
 
 10) Choose Suffix, selection 6, and type
 
 edoc
+
+(This does *not* change for the AML handsets.)
 
 then enter again.
 

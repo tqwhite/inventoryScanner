@@ -1,7 +1,11 @@
 #!/bin/bash
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1337.plist
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1338.plist
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1339.plist
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1340.plist
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1341.plist
-launchctl load -w /Users/HelixServer/Library/LaunchAgents/scanServer1342.plist
+
+
+pushd /Users/HelixServer/Library/LaunchAgents > /dev/null
+
+for plist in com.databright.tqwhite.scannerServer.*.plist; do
+  echo "Bootstrapping $plist"
+  launchctl bootstrap gui/$(id -u) "$PWD/$plist" || echo "❌ Failed: $plist"
+done
+
+popd > /dev/null

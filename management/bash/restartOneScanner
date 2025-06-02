@@ -1,0 +1,32 @@
+#!/bin/bash
+BLK="\033[30m";
+BLU="\033[34m";
+GRN="\033[32m";
+CYA="\033[36m"; #cyan
+RED="\033[31m";
+PUR="\033[35m"; #purple
+BRN="\033[33m";
+BLU="\033[34m";
+WHI="\033[00;37m";
+RES="\033[00m"; #reset
+
+if [[ "" == "$1" ]]; then
+
+echo -e "No scanner number (1337, 1338, etc) was entered. Nothing was done. Exiting";
+    exit;
+fi
+
+
+THISDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo -e "stopping scanner $1 ${RED}(if you see error messages, ignore them)${RES}";
+
+launchctl unload "/Users/HelixServer/Library/LaunchAgents/scanServer$1.plist"
+
+
+echo -e "starting scanner $1";
+
+launchctl load -w "/Users/HelixServer/Library/LaunchAgents/scanServer$1.plist"
+
+
+echo -e "DONE. Scanners should be working again.";

@@ -499,6 +499,7 @@ process.on('SIGTERM', () => {
 });
 
 
+console.log("Startup Complete"+new Date().toLocaleString());
 	
 //END  ============================================================
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>SCANNER_BASE_PATH</key>
+		<string>/Users/HelixServer/inventoryScanner/</string>
+		<key>SCANNER_CONFIG_NAME</key>
+		<string>production</string>
+		<key>SCANNER_LOG_FILE_DIRECTORY_PATH</key>
+		<string>/Users/HelixServer/inventoryScanner/logFiles</string>
+		<key>SCANNER_PORT</key>
+        <string>1338</string>
+	</dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+        <string>com.databright.tqwhite.scannerServer.1338</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/node</string>
+		<string>/Users/HelixServer/inventoryScanner/system/scanServer/scanServer.js</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/HelixServer/inventoryScanner/logFiles/scanServer.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/HelixServer/inventoryScanner/logFiles/scanServer.tech.log</string>
+</dict>
+</plist>

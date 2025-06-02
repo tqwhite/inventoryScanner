@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Usage:"
+  echo "  rgui 'shell command'"
+  echo "  rgui AppName file_or_args..."
+  exit 1
+fi
+
+if [ $# -eq 1 ]; then
+  cmd="$1"
+elif [ "$1" = "open" ]; then
+  # Special case: "open" is not an app, it's a command
+  shift
+  cmd="open $*"
+elif [[ "$2" == /* || "$2" == -* ]]; then
+  # Raw shell command: bbedit -N file.txt
+  cmd="$*"
+else
+  # Standard app + file: open -a App "args..."
+  app="$1"
+  shift
+  args="$*"
+  cmd="open -a \"$app\" \"$args\""
+fi
+
+# Escape for AppleScript
+escaped_cmd=$(printf "%s" "$cmd" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+/usr/bin/osascript -e "do shell script \"$escaped_cmd\""

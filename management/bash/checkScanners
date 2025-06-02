@@ -6,7 +6,7 @@ If nothing shows below, the scanners are not running.
 
 ";
 
-launchctl list | grep scan
+launchctl list | grep scan | grep -v XP
 
 echo -e "
 
